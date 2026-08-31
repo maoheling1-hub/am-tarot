@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a1430">
+<title>阿毛塔罗 · 自学抽牌</title>
+<style>
+/* ============ 阿毛塔罗 | Editorial Swiss Revival ============ */
+:root{
+  --bg0: oklch(10% 0.04 280);
+  --bg1: oklch(18% 0.06 280);
+  --bg2: oklch(25% 0.07 280);
+  --gold: oklch(78% 0.12 75);
+  --gold-soft: oklch(88% 0.08 75);
+  --gold-deep: oklch(65% 0.11 75);
+  --cream: oklch(92% 0.02 75);
+  --text: oklch(94% 0.02 280);
+  --text-dim: oklch(75% 0.04 280);
+  --card: oklch(24% 0.08 280);
+  --card-border: oklch(35% 0.06 280);
+  --rev: oklch(82% 0.03 260);
+  --red: oklch(72% 0.14 25);
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-lg: 1.333rem;
+  --fs-xl: 1.777rem;
+  --sp-1: 0.5rem;
+  --sp-2: 1rem;
+  --sp-3: 1.5rem;
+  --sp-4: 2rem;
+  --sp-6: 3rem;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+  background:linear-gradient(160deg,var(--bg0) 0%,var(--bg1) 45%,var(--bg2) 100%);
+  color:var(--text);
+  min-height:100vh;
+  padding-bottom:var(--sp-6);
+  line-height:1.6;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(230,194,122,.3), transparent),
+    radial-gradient(1px 1px at 80% 20%, rgba(230,194,122,.25), transparent),
+    radial-gradient(1px 1px at 50% 80%, rgba(230,194,122,.18), transparent);
+  background-size:180px 180px; opacity:.5;
+}
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:oklch(10% 0.04 280 / .85);backdrop-filter:blur(12px);
+  border-bottom:1px solid oklch(35% 0.06 280 / .5);
+}
+.brand{display:flex;align-items:baseline;gap:var(--sp-2);padding:var(--sp-2) var(--sp-2) var(--sp-1);}
+.brand-icon{font-size:var(--fs-lg);color:var(--gold);}
+.brand-name{font-size:var(--fs-lg);font-weight:700;letter-spacing:2px;color:var(--cream);}
+.brand-sub{font-size:var(--fs-xs);color:var(--text-dim);display:block;margin-top:2px;letter-spacing:1px;}
+.tabs{display:flex;padding:0 var(--sp-2);gap:var(--sp-3);}
+.tab{
+  flex:none;background:none;border:none;color:var(--text-dim);
+  font-size:var(--fs-sm);padding:var(--sp-1) 0;cursor:pointer;letter-spacing:1px;
+  position:relative;transition:color .15s;
+}
+.tab::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--gold);transform:scaleX(0);transition:transform .2s;
+}
+.tab.active{color:var(--gold);font-weight:600;}
+.tab.active::after{transform:scaleX(1);}
+.tab:not(.active):hover{color:var(--cream);}
+main{position:relative;z-index:1;padding:var(--sp-3) var(--sp-2);max-width:60ch;margin:0 auto;}
+.panel{display:none;animation:fade .35s;}
+.panel.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.focus-card{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:var(--sp-3);margin-bottom:var(--sp-3);}
+.focus-label{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;font-size:var(--fs-xs);color:var(--gold);letter-spacing:0.2em;display:block;margin-bottom:var(--sp-1);text-transform:uppercase;}
+.question-input{width:100%;background:var(--bg0);border:1px solid var(--card-border);border-radius:4px;color:var(--text);font-size:var(--fs-base);padding:.75rem .875rem;outline:none;transition:border-color .15s;}
+.question-input::placeholder{color:var(--text-dim);}
+.question-input:focus{border-color:var(--gold);}
+.spread-row{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-3);}
+.spread{flex:1;background:var(--card);border:1px solid var(--card-border);color:var(--text-dim);border-radius:4px;padding:var(--sp-2);font-size:var(--fs-sm);cursor:pointer;transition:all .15s;position:relative;}
+.spread.active{border-color:var(--gold);color:var(--gold);background:oklch(24% 0.08 280);}
+.spread:not(.active):hover{border-color:oklch(45% 0.06 280);color:var(--cream);}
+.table{position:relative;min-height:200px;display:flex;align-items:center;justify-content:center;gap:var(--sp-2);padding:var(--sp-3) 0;perspective:1200px;}
+.table-hint{color:var(--text-dim);font-size:var(--fs-sm);text-align:center;line-height:1.8;font-style:italic;}
+.grid-cell{flex:1;max-width:150px;display:flex;justify-content:center;transition:transform .5s cubic-bezier(.34,1.4,.4,1),opacity .4s;}
+.cell-1{max-width:150px;}
+.cell-3{max-width:105px;}
+.deck-pile{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:74px;height:104px;z-index:1;transition:opacity .4s,transform .4s;filter:drop-shadow(0 8px 16px rgba(0,0,0,.55));}
+.deck-stack{position:absolute;inset:0;transform-style:preserve-3d;}
+.db{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:8px;background:linear-gradient(145deg,var(--bg2),var(--bg1));border:1px solid oklch(78% 0.12 75 / .35);box-shadow:0 2px 6px rgba(0,0,0,.45);}
+.db.d1{transform:translate(-6px,7px) rotate(-2deg);}
+.db.d2{transform:translate(5px,5px) rotate(1.4deg);}
+.db.d3{transform:translate(-4px,3px) rotate(-.8deg);}
+.db.d4{transform:translate(4px,2px) rotate(.8deg);}
+.db.d5{transform:translate(-2px,1px) rotate(-.3deg);}
+.db.d6{transform:translate(2px,.5px) rotate(.3deg);}
+.db.top{display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:24px;background:linear-gradient(145deg,var(--bg2),var(--bg1));border:1px solid var(--gold-deep);}
+.db::before{content:"";position:absolute;inset:6px;border:1px solid oklch(78% 0.12 75 / .18);border-radius:5px;background:repeating-linear-gradient(45deg,transparent 0 5px,oklch(78% 0.12 75 / .04) 5px 10px);}
+.deck-pile.shuffling{animation:deckPulse 1.4s ease-in-out infinite;}
+.deck-pile.shuffling .deck-stack{animation:riffle .3s ease-in-out infinite;}
+.deck-pile.shuffling .db.top{animation:topCard .3s ease-in-out infinite;}
+@keyframes riffle{0%{transform:translateY(0) rotate(0) scale(1);}30%{transform:translateY(-7px) rotate(-4deg) scale(1.05,.9);}60%{transform:translateY(3px) rotate(5deg) scale(.94,1.06);}100%{transform:translateY(0) rotate(0) scale(1);}}
+@keyframes topCard{0%{transform:translate(0,0) rotate(0);}50%{transform:translate(-9px,-3px) rotate(-14deg);}100%{transform:translate(0,0) rotate(0);}}
+@keyframes deckPulse{0%,100%{filter:drop-shadow(0 0 12px rgba(230,194,122,.25)) drop-shadow(0 8px 16px rgba(0,0,0,.55));}50%{filter:drop-shadow(0 0 30px rgba(230,194,122,.55)) drop-shadow(0 8px 16px rgba(0,0,0,.55));}}
+.deck-glint{position:absolute;left:-12%;width:124%;height:34%;top:-40%;z-index:3;pointer-events:none;opacity:0;background:linear-gradient(180deg,transparent,rgba(255,235,170,.5),rgba(255,245,210,.9),rgba(255,235,170,.5),transparent);filter:blur(5px);}
+.deck-pile.shuffling .deck-glint{animation:glint 1.5s linear infinite;}
+@keyframes glint{0%{top:-40%;opacity:0;}8%{opacity:1;}70%{opacity:1;}100%{top:140%;opacity:0;}}
+.grid-cell.dealing{opacity:0;transform:translate(0,0) scale(.4) rotate(10deg);z-index:2;}
+.grid-cell.dealt{opacity:1;transform:none;z-index:auto;}
+.cell-1.dealt{transition-delay:0s;}
+.cell-3.dealt:nth-child(1){transition-delay:0s;}
+.cell-3.dealt:nth-child(2){transition-delay:.22s;}
+.cell-3.dealt:nth-child(3){transition-delay:.44s;}
+.spark{position:absolute;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle,#ffe9a8,var(--gold-d));box-shadow:0 0 8px var(--gold);pointer-events:none;z-index:5;opacity:0;animation:sparkFly .6s ease-out forwards;}
+@keyframes sparkFly{0%{opacity:1;transform:translate(0,0) scale(1);}100%{opacity:0;transform:translate(var(--dx,30px),var(--dy,-20px)) rotate(var(--r,0deg)) scale(.2);}}
+.card3d{width:100%;max-width:150px;height:220px;position:relative;transform-style:preserve-3d;}
+.cell-3 .card3d{height:180px;}
+.flipper{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,.2,.2,1);}
+.flipper.flipped{transform:rotateY(180deg);}
+.cardface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:8px;display:flex;flex-direction:column;}
+.card-back{background:linear-gradient(145deg,var(--bg2),var(--bg1));border:1px solid var(--gold-deep);box-shadow:0 4px 16px rgba(0,0,0,.5);align-items:center;justify-content:center;}
+.back-frame{position:absolute;inset:7px;border:1px solid oklch(78% 0.12 75 / .4);border-radius:5px;background:repeating-linear-gradient(45deg,transparent 0 6px,oklch(78% 0.12 75 / .06) 6px 12px);}
+.back-pattern{font-size:38px;color:var(--gold);opacity:.7;text-shadow:0 0 10px oklch(78% 0.12 75 / .3);animation:backShine 3s ease-in-out infinite;}
+@keyframes backShine{0%,100%{opacity:.6;text-shadow:0 0 6px oklch(78% 0.12 75 / .2);}50%{opacity:.9;text-shadow:0 0 18px oklch(78% 0.12 75 / .45);}}
+.card-front{transform:rotateY(180deg);background:linear-gradient(160deg,var(--card),var(--bg1));border:1px solid var(--card-border);overflow:hidden;position:relative;border-radius:8px;}
+.cf-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:7px;}
+.cf-fallback{display:none;position:absolute;inset:0;border-radius:7px;z-index:1;background:linear-gradient(160deg,var(--card),var(--bg1));padding:10px;flex-direction:column;}
+.card-front.rev{filter:saturate(.85) brightness(.9);border-color:var(--rev);}
+.card-front.rev .cf-fallback .cf-icon{filter:hue-rotate(140deg);opacity:.8;}
+.card-front.rev .cf-img{filter:hue-rotate(140deg) saturate(.85) brightness(.9);}
+.cf-top{display:flex;justify-content:space-between;font-size:11px;color:var(--gold);}
+.cf-bottom{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--text-dim);}
+.cf-numline{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--text-dim);padding-top:6px;border-top:1px solid oklch(78% 0.12 75 / .18);}
+.cf-num{color:var(--gold);font-weight:700;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;}
+.cf-iconbox{text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+.cf-icon{font-size:38px;color:var(--gold);}
+.cf-cn{color:var(--cream);}
+.cf-name{font-size:17px;font-weight:700;letter-spacing:1px;color:var(--cream);}
+.cf-en{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;}
+.ico{font-style:normal;}
+.pos-tag{position:absolute;top:-14px;left:0;right:0;text-align:center;font-size:11px;color:var(--gold);}
+.draw-zone{text-align:center;margin:var(--sp-3) 0 var(--sp-1);}
+.draw-btn{background:var(--gold);color:var(--bg0);border:none;border-radius:4px;padding:var(--sp-2) var(--sp-4);font-size:var(--fs-base);font-weight:700;letter-spacing:2px;cursor:pointer;transition:opacity .12s,transform .12s;}
+.draw-btn:hover{opacity:.9;}
+.draw-btn:active{transform:scale(.97);}
+.draw-btn.small{padding:var(--sp-1) var(--sp-2);font-size:var(--fs-sm);}
+.result{margin-top:var(--sp-3);animation:rise .5s;}
+@keyframes rise{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+.res-question{text-align:center;color:var(--gold);font-size:var(--fs-base);margin-bottom:var(--sp-2);letter-spacing:1px;font-style:italic;}
+.detail-card{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:var(--sp-3);margin-bottom:var(--sp-2);}
+.dc-head{display:flex;align-items:flex-start;gap:var(--sp-2);margin-bottom:var(--sp-2);}
+.dc-thumb{flex:none;width:58px;height:88px;border-radius:6px;overflow:hidden;position:relative;background:linear-gradient(160deg,var(--card),var(--bg1));border:1px solid var(--card-border);}
+.dc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:2;}
+.dc-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1;background:linear-gradient(160deg,var(--card),var(--bg1));}
+.dc-fb-icon{font-size:22px;color:var(--gold);}
+.dc-title{flex:1;}
+.dc-pos{font-size:var(--fs-xs);color:var(--gold);letter-spacing:1px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;text-transform:uppercase;}
+.dc-name{font-size:var(--fs-lg);font-weight:700;color:var(--cream);}
+.dc-en{font-size:var(--fs-xs);color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;}
+.dc-meta{font-size:var(--fs-xs);color:var(--text-dim);margin-top:2px;}
+.dc-orient{font-size:var(--fs-xs);color:#79c9a8;font-weight:700;margin-top:4px;display:inline-block;letter-spacing:1px;}
+.dc-orient.rev{color:#c88;}
+.dc-kw{margin-bottom:var(--sp-2);}
+.kw-row{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{background:oklch(78% 0.12 75 / .1);color:var(--gold);border:1px solid oklch(78% 0.12 75 / .2);padding:2px 10px;border-radius:3px;font-size:var(--fs-sm);}
+.dc-mean{font-size:var(--fs-sm);line-height:1.8;color:var(--text);margin-bottom:var(--sp-2);}
+.dc-mean b{color:var(--gold);}
+.dc-learn{font-size:var(--fs-sm);line-height:1.7;color:var(--text-dim);background:var(--bg0);border-left:3px solid var(--gold-deep);padding:var(--sp-2);border-radius:0 4px 4px 0;margin-bottom:var(--sp-1);}
+.dc-learn b{color:var(--gold);}
+.dc-sym{font-size:var(--fs-sm);line-height:1.7;color:var(--text-dim);}
+.dc-sym b{color:var(--gold-deep);}
+.dc-open{margin-top:var(--sp-2);color:var(--gold);font-size:var(--fs-sm);text-align:right;cursor:pointer;letter-spacing:1px;}
+.summary{background:var(--card);border:1px solid oklch(78% 0.12 75 / .3);border-radius:8px;padding:var(--sp-3);margin-bottom:var(--sp-2);}
+.sum-head{color:var(--gold);font-size:var(--fs-sm);font-weight:700;margin-bottom:var(--sp-2);text-align:center;letter-spacing:2px;text-transform:uppercase;}
+.sum-text{font-size:var(--fs-sm);line-height:1.8;color:var(--text);}
+.sum-text b{color:var(--gold);}
+.learn-cta{background:var(--bg0);border:1px dashed var(--gold-deep);border-radius:8px;padding:var(--sp-3);}
+.lc-title{color:var(--gold);font-size:var(--fs-base);font-weight:700;margin-bottom:var(--sp-1);}
+.lc-sub{font-size:var(--fs-sm);line-height:1.9;color:var(--text-dim);margin-bottom:var(--sp-2);}
+.lc-sub b{color:var(--cream);}
+.lc-btns{display:flex;gap:var(--sp-2);}
+.ghost{flex:1;background:none;border:1px solid var(--gold-deep);color:var(--gold);border-radius:4px;padding:var(--sp-1);font-size:var(--fs-sm);cursor:pointer;transition:background .15s;}
+.ghost:active{background:oklch(78% 0.12 75 / .12);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:oklch(78% 0.12 75 / .25);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:oklch(78% 0.12 75 / .4);}
+.learn-header{padding:var(--sp-1) 0 var(--sp-2);display:flex;align-items:center;justify-content:space-between;}
+.learn-header h3{color:var(--gold);font-size:var(--fs-base);margin:0;letter-spacing:1px;}
+.deck-badge{font-size:var(--fs-xs);color:var(--text-dim);background:oklch(78% 0.12 75 / .1);border:1px solid oklch(78% 0.12 75 / .15);padding:3px 10px;border-radius:20px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;}
+.search-input{width:100%;background:var(--bg0);border:1px solid var(--card-border);border-radius:4px;color:var(--text);padding:var(--sp-1) var(--sp-2);font-size:var(--fs-sm);outline:none;transition:border-color .15s;}
+.search-input:focus{border-color:var(--gold);}
+.browse-filters{display:flex;gap:var(--sp-2);margin:var(--sp-2) 0;flex-wrap:wrap;}
+.bfilter{background:var(--card);border:1px solid var(--card-border);color:var(--text-dim);border-radius:4px;padding:4px 12px;font-size:var(--fs-sm);cursor:pointer;transition:all .15s;}
+.bfilter.active{border-color:var(--gold);color:var(--gold);background:var(--card);}
+.bfilter:not(.active):hover{border-color:oklch(45% 0.06 280);color:var(--cream);}
+.card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+@media (min-width: 600px){ .card-grid{grid-template-columns:repeat(4,1fr); } }
+@media (min-width: 800px){ .card-grid{grid-template-columns:repeat(5,1fr); } }
+@media (max-width: 400px){ .card-grid{grid-template-columns:repeat(3,1fr); } }
+.grid-card{background:var(--card);border:1px solid var(--card-border);border-radius:6px;padding:6px 4px 8px;text-align:center;cursor:pointer;transition:border-color .15s,transform .15s;}
+.grid-card:active{transform:scale(.96);}
+.grid-card:hover{border-color:oklch(45% 0.06 280);}
+.gc-img-wrap{position:relative;aspect-ratio:3/5;border-radius:4px;overflow:hidden;background:linear-gradient(160deg,var(--card),var(--bg1));border:1px solid var(--card-border);margin-bottom:4px;}
+.gc-img{width:100%;height:100%;object-fit:cover;display:block;}
+.gc-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--card),var(--bg1));}
+.gc-fb-icon{font-size:22px;color:var(--gold);}
+.gc-name{font-size:11px;font-weight:600;color:var(--cream);line-height:1.3;}
+.gc-sub{display:none;}
+.panel-title{color:var(--gold);font-size:var(--fs-lg);letter-spacing:2px;text-align:center;margin:var(--sp-1) 0 var(--sp-1);}
+.panel-desc{color:var(--text-dim);font-size:var(--fs-sm);text-align:center;line-height:1.7;margin:0 0 var(--sp-3);font-style:italic;}
+.quiz-stage{text-align:center;}
+.quiz-cardback{width:120px;height:170px;margin:0 auto var(--sp-3);border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,var(--bg2),var(--bg1));border:1px solid var(--gold-deep);font-size:44px;color:var(--gold);}
+.quiz-card{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:var(--sp-3);margin-top:var(--sp-3);text-align:left;}
+.qz-name{font-size:var(--fs-lg);font-weight:700;color:var(--cream);}
+.qz-name span{font-size:var(--fs-xs);color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;}
+.qz-meta{font-size:var(--fs-sm);color:var(--text-dim);margin-top:4px;margin-bottom:var(--sp-2);}
+.qz-img-wrap{margin:0 auto var(--sp-3);width:140px;height:210px;border-radius:8px;overflow:hidden;position:relative;background:linear-gradient(160deg,var(--card),var(--bg1));border:1px solid var(--card-border);}
+.qz-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.qz-fb{display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--card),var(--bg1));}
+.qz-fb-icon{font-size:48px;color:var(--gold);}
+.qz-ask{font-size:var(--fs-sm);line-height:1.8;color:var(--text);margin-bottom:var(--sp-2);}
+.qz-ask b{color:var(--gold);}
+.qz-mem{font-size:var(--fs-sm);color:var(--text-dim);margin-bottom:var(--sp-2);}
+textarea{width:100%;background:var(--bg0);border:1px solid var(--card-border);border-radius:4px;color:var(--text);padding:var(--sp-1) var(--sp-2);font-size:var(--fs-sm);resize:none;outline:none;font-family:inherit;transition:border-color .15s;}
+textarea:focus{border-color:var(--gold);}
+.guide-body{max-width:60ch;margin:0 auto;}
+.guide-steps{margin-bottom:var(--sp-3);}
+.gstep{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:var(--sp-2) var(--sp-3);margin-bottom:var(--sp-2);font-size:var(--fs-sm);line-height:1.8;color:var(--text);}
+.gstep b{color:var(--gold);}
+.tips{background:var(--bg0);border:1px solid var(--card-border);border-radius:8px;padding:var(--sp-2) var(--sp-3);}
+.tipline{font-size:var(--fs-sm);line-height:1.8;color:var(--text-dim);margin-bottom:var(--sp-1);}
+.tipline b{color:var(--gold);}
+.modal{position:fixed;inset:0;background:oklch(8% 0.04 280 / .8);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;z-index:50;animation:fade .2s;}
+.modal.open{display:flex;}
+.modal-box{background:var(--bg1);width:100%;max-width:60ch;max-height:90vh;overflow-y:auto;border-radius:12px 12px 0 0;padding:var(--sp-4) var(--sp-3) var(--sp-6);position:relative;box-shadow:0 -6px 30px rgba(0,0,0,.5);}
+@keyframes slideUp{from{transform:translateY(30px);}to{transform:none;}}
+.modal.open .modal-box{animation:slideUp .3s;}
+.modal-close{position:absolute;top:8px;right:var(--sp-3);background:none;border:none;color:var(--gold);font-size:var(--fs-lg);cursor:pointer;line-height:1;padding:4px 8px;}
+.detail-card.in-modal{border:none;background:none;padding:0;}
+.modal-ex{margin-top:var(--sp-3);background:var(--bg0);border:1px dashed var(--gold-deep);border-radius:8px;padding:var(--sp-3);}
+.ex-title{color:var(--gold);font-size:var(--fs-base);font-weight:700;margin-bottom:var(--sp-2);}
+.ex-text{font-size:var(--fs-sm);line-height:1.9;color:var(--text-dim);}
+.ex-text b{color:var(--cream);}
+</style>
+</head>
+<body>
+
+<!-- ============ 顶部导航 ============ -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">✦</div>
+    <div class="brand-text">
+      <span class="brand-name">阿毛塔罗</span>
+      <span class="brand-sub">阿毛塔罗 · 抽牌自学</span>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="draw">抽牌</button>
+    <button class="tab" data-tab="learn">牌库自学</button>
+    <button class="tab" data-tab="quiz">自测</button>
+    <button class="tab" data-tab="guide">入门指引</button>
+  </nav>
+</header>
+
+<!-- ============ 抽牌区 ============ -->
+<main>
+<section id="draw" class="panel active">
+
+  <!-- 问题输入 -->
+  <div class="focus-card">
+    <label class="focus-label">今天想问什么？（可留空）</label>
+    <input id="questionInput" class="question-input" type="text"
+      placeholder="例：我该如何看待眼前的机会？" maxlength="60">
+  </div>
+
+  <!-- 牌阵选择 -->
+  <div class="spread-row">
+    <button class="spread active" data-count="1">单张 · 每日指引</button>
+    <button class="spread" data-count="3">三张 · 过去现在未来</button>
+  </div>
+
+  <!-- 牌桌 -->
+  <div id="table" class="table"></div>
+
+  <!-- 抽牌按钮 -->
+  <div class="draw-zone">
+    <button id="drawBtn" class="draw-btn">✦ 洗牌 &amp; 抽牌 ✦</button>
+  </div>
+
+  <!-- 解读结果 -->
+  <div id="result" class="result"></div>
+</section>
+
+<section id="learn" class="panel">
+  <div class="learn-header">
+    <h3>牌库浏览</h3>
+    <span class="deck-badge" id="deckCount">78 张</span>
+  </div>
+  <input id="learnSearch" class="search-input" type="text" placeholder="搜索牌名 / 关键词…">
+  <div class="browse-filters">
+    <button class="bfilter active" data-filter="all">全部</button>
+    <button class="bfilter" data-filter="major">大阿卡纳</button>
+    <button class="bfilter" data-filter="minor">小阿卡纳</button>
+  </div>
+  <div id="cardGrid" class="card-grid"></div>
+  <div id="learnDetail"></div>
+</section>
+
+<section id="quiz" class="panel">
+  <h3 class="panel-title">⊹ 牌意自测 ⊹</h3>
+  <p class="panel-desc">随机抽一张牌，凭记忆回想牌意，再点击查看对照，检验掌握程度。</p>
+  <div class="quiz-stage">
+    <div class="quiz-cardback" id="quizCardBack">?</div>
+    <button id="quizDraw" class="draw-btn small">随机出一题</button>
+    <div id="quizArea"></div>
+  </div>
+</section>
+
+<section id="guide" class="panel">
+  <div class="guide-body">
+    <h3 class="panel-title">⊹ 零基础入门指引 ⊹</h3>
+    <p class="panel-desc">按这个顺序学，最快掌握塔罗。</p>
+    <div class="guide-steps">
+      <div class="gstep"><b>① 认识结构</b>塔罗共78张：22张大阿卡纳（人生大课题）+ 56张小阿卡纳（生活细节）。小阿卡纳分4花色：权杖(火/行动)、圣杯(水/情感)、宝剑(风/思考)、星币(土/物质)。</div>
+      <div class="gstep"><b>② 先学大阿卡纳</b>22张是一个完整的"愚者之旅"成长故事。从愚人→世界，按顺序记住每个人生阶段，就记住了整个框架。</div>
+      <div class="gstep"><b>③ 记住阿卡纳数字</b>小阿卡纳的1~10和宫廷牌各有主题：1=开端、2=选择、3=成长、4=稳定、5=冲突、6=和谐、7=坚持、8=力量/变革、9=独自提升、10=完结;宫廷牌(侍从/骑士/王后/国王)=人格阶段。</div>
+      <div class="gstep"><b>④ 实操抽牌</b>回"抽牌"页，先不用管记不记得住，每天抽一张牌，读出正逆位关键词，再看详解对照，很快就有语感。</div>
+      <div class="gstep"><b>⑤ 用自测巩固</b>"自测"页随机抽牌回想牌意，检验自己记下多少，反复几次就能内化。</div>
+    </div>
+    <h3 class="panel-title">⊹ 速记小技巧 ⊹</h3>
+    <div class="tips">
+      <div class="tipline">✓ 每张牌记 <b>"3个关键词 + 1句话"</b>，别背长文。</div>
+      <div class="tipline">✓ 逆位不是"坏"，而是"过度/不足/受阻" —— 常表示能量失衡。</div>
+      <div class="tipline">✓ 看牌联想：画面里有什么元素（星/水/剑/花），就往那个方向解读。</div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============ 牌意详情弹层 ============ -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <button id="modalClose" class="modal-close">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+/* 大阿卡纳 22 张牌数据库 */
+const MAJOR = [
+{ id:0, n:'愚人', en:'The Fool', num:'0', el:'风', kU:['开始','冒险','天真','潜能','自由'], kR:['鲁莽','犹豫','逃避','不负责','盲目'], m:'愚人象征一段全新旅程的开始，代表纯粹的可能性、好奇与无畏。正位出现时，提示你正站在新起点，带着开放的心去尝试未知。它鼓励你相信直觉，迈出第一步，哪怕前路未卜。', r:'愚人逆位表示准备不足、冲动行事或过度天真，也可能因害怕犯错而迟迟不敢行动。它提醒你：要么还没看清风险就跳进去，要么因顾虑太多错过了出发的时机。教训是"在勇敢与鲁莽间找到平衡"。', teach:'愚人是塔罗旅程的第0站，代表"灵魂还没经验"的最初状态。记住一句话：内心深处总有个没长大的、对所有可能性说"好"的孩子。学大阿卡纳时把它当成起点，故事从这里展开。', sym:'背着行囊站在悬崖边、脚边有只狗、手持白玫瑰（纯真）——象征未知的冒险与信任。' },
+{ id:1, n:'魔术师', en:'The Magician', num:'I', el:'风', kU:['创造','意志','技艺','资源','专注'], kR:['空想','欺诈','能量散','自我中心','拖延'], m:'魔术师象征"你已具备创造所需的一切"。桌上摆着四种元素的象征物（权杖、圣杯、宝剑、星币），意味着天时地利人和都已备齐。正位提示你：凭自己的意志与技能去创造、去行动，此刻是施展才华的时机。', r:'魔术师逆位代表才华被浪费、目标不清，或是在用技巧欺瞒自己和他人。它提醒你检查：是否在空谈理想而未落地？是否抓着一堆资源却没有聚焦？恢复方向感，抵制走捷径的心态。', teach:'魔术师是"显化者"的原型：一手向天、一手指地，意为"上界如此，下界亦然"。记住：他是把想法变成现实的第一人。和小阿卡纳四种元素对应，代表你已经"配齐了全部工具"。', sym:'头顶∞符号、腰绑衔尾蛇、四元素器皿在桌——象征全然的创造潜能与意志力。' },
+{ id:2, n:'女祭司', en:'The High Priestess', num:'II', el:'水', kU:['直觉','内在智慧','神秘','静观','潜意识'], kR:['直觉受阻','自欺','隐藏信息','疏离','浅薄'], m:'女祭司代表未言明的内在智慧与直觉。正位提示你：答案不在表面，而在潜意识之中。此刻更适合聆听内心、静观等待，而不是急着用外部的逻辑去推断。她邀请你信任直觉，留意梦境与第六感。', r:'女祭司逆位表示听不见内在声音，直觉被忽视，可能有秘密被隐瞒，或自己选择对真相视而不见。它提醒你：别再绕开内心的信号，坦诚面对直觉回避的那个真相。', teach:'女祭司是"神秘之门"看护者，坐在帘幕前、手持卷宗。记住：她是站着不动的直觉，区别于女皇的行动。她的功课 = "安静下来，听内在的声音"。', sym:'两柱B/J、石榴与棕榈帘幕、脚边新月——象征"帘幕后的未显真相"与直觉。' },
+{ id:3, n:'皇后', en:'The Empress', num:'III', el:'土', kU:['丰盛','滋养','母亲','创造力','感官'], kR:['过度','不独立','疏忽','沉闷','依赖'], m:'皇后是丰盛与滋养的化身，象征孕育、创造力大丰收。正位出现时，感情与生活正在开花结果，适合投入创作、经营关系、关照身体与感官享受。她鼓励你放松下来，接受"被滋养"与"去滋养"。', r:'皇后逆位代表创造力受阻、产出停滞，或对他人/事物过度依赖而失去自我。可能是疏忽了自我照料，或关系里失衡。提醒你：先滋养好自己，才有能力给予；别让占有欲变成束缚。', teach:'皇后是"大地的母亲"：绿树红袍、麦田流水。记住：她是丰饶本身。对照女祭司（内在直觉）与皇后的区别——一个是听，一个是生。她对应爱与物质的显化。', sym:'金星符号、心形盾、丰茂麦田——象征生育力、丰盛与感官之乐。' },
+{ id:4, n:'皇帝', en:'The Emperor', num:'IV', el:'火', kU:['权威','结构','秩序','掌控','稳定'], kR:['独裁','僵化','失控','压制','蛮横'], m:'皇帝象征稳固的权威、规则与结构。正位提示你建立秩序、承担责任，用坚定和自律推进事务。在职场上常代表领导力与决策；生活里提醒你为混乱建立边界。他是可依赖的执行力。', r:'皇帝逆位代表人被专断掌控、或自身僵化缺乏弹性，也可能面对权威失控、规则失灵的局面。它提醒你：别以强硬掩饰不安，学会在秩序与倾听之间取得平衡。', teach:'皇帝是"父亲/统治者"原型：端坐石座、手握权杖。记住他与皇后相反——皇后是丰盛生长，他是结构与边界。要建立"秩序感"时就想他。', sym:'公羊(白羊)饰头、河谷山川、铠甲王座——象征权威、统治与物质世界。' },
+{ id:5, n:'教皇', en:'The Hierophant', num:'V', el:'土', kU:['引导','传统','教导','信念','共鸣'], kR:['墨守成规','盲从','叛逆','道德困境','教条'], m:'教皇象征传统、知识与精神教导。正位出现时，提示你尊重既有的体系与权威，向师长、经典、信仰学习，或遵循被验证过的路径。他也代表建立关系与结盟，是符合世俗规范的结合。', r:'教皇逆位代表质疑教条、突破传统，可能与之向背而行、拒绝服从权威，或陷入道德上的抉择困顿。它提醒你：不盲从也不一味反叛，找到属于自己的信念。', teach:'教皇是"导师/桥梁"原型，位阶下方有钥匙、脚边有信徒。记住：他传递的是被社会认可的智慧与仪式。对应"要加入哪个体系"或"跟随谁学"的功课。', sym:'教宗三重冠、双钥匙交叉、双柱托引——象征精神法则与人间的桥梁。' },
+{ id:6, n:'恋人', en:'The Lovers', num:'VI', el:'风', kU:['爱','结合','选择','合一','和谐'], kR:['失衡','分歧','抉择难','不协调','错过'], m:'恋人牌代表爱的关系与深刻的联结，也象征一次重要的选择。正位时提示你在感情/合作中和谐一致，或面临需要凭"心意与价值观"做决定的分叉路。它鼓励真诚相待。', r:'恋人逆位代表关系中的失衡、沟通失调或抉择困难，可能是价值观冲突、内心摇摆不定。它提醒你：先与自己合一，才能与他人和谐；别因迁就而迷失自我。', teach:'恋人牌既讲爱情，更讲"选择"——上古的画面是亚当与夏娃，上方天使。记住：牌的本义是"在价值观的分岔口，诚实选择"。把焦点放回内心真正想选的，而不是表面诱惑。', sym:'天使加持、生命树与知善恶树、裸身赤诚——象征真爱与关键抉择。' },
+{ id:7, n:'战车', en:'The Chariot', num:'VII', el:'水', kU:['胜利','意志','驱动','克服','掌控方向'], kR:['失控','方向失调','迟疑','受阻','强求'], m:'战车象征凭借意志力与自律驶向胜利。正位出现时，你在掌控方向，只要坚持下去就能达成目标。它鼓励你把精力汇集到一处，用纪律驱动，战胜路上的阻力与矛盾。', r:'战车逆位代表失去方向或掌控力下降，可能是意志摇摆、前进受阻，或对目标失去信心。它提醒你：先明确你真正想去的"那边"，再踩下油门；内耗会拖慢战车。', teach:'战车是"征服者"原型：驾驭黑白双狮（象征矛盾对峙的两股力量）。记住：赢的关键不是强力，而是"驾驭并整合矛盾"。它呼应意志与自律。', sym:'黑白斯芬克斯、六芒星冠、城市背景——象征驾驭对立力量、迈向胜利。' },
+{ id:8, n:'力量', en:'Strength', num:'VIII', el:'火', kU:['勇气','温柔力量','耐心','内在镇定','驯服'], kR:['自我怀疑','软弱','失控','压抑','无力'], m:'力量牌不是蛮力，而是以温柔与耐心驯服内心猛兽。正位提示你用爱、勇气与镇定面对挑战，心存温和却坚定。它代表把怒气、欲望化为内在力量的能力，是对自己的慈悲。', r:'力量逆位代表自我怀疑、意志薄弱，可能被恐惧或情绪牵着走，或对自己的内在缺乏信心。它提醒你：勇气不是没有恐惧，而是带着恐惧仍愿前行；先安抚自己。', teach:'力量牌画了一位女子轻抚狮子。记住：这是"用柔克刚"的功课。对比皇帝的"用制度控制"与力量的"用温柔驯服"之别，就能记住它的真义。', sym:'女子徒手安抚雄狮、头顶∞符号、白色衣袍——象征以柔克刚与内在勇毅。' },
+{ id:9, n:'隐士', en:'The Hermit', num:'IX', el:'土', kU:['内省','寻求真理','独处','指引','自省'], kR:['孤立','逃避','固执','迷惘','隐退过度'], m:'隐士象征回到内在、独自求索真理的阶段。正位提示你放慢脚步，退离喧嚣，在静默中寻找答案。他提着灯笼为你照路，代表有智慧在等待你去拾取，也可能指遇见一位明师。', r:'隐士逆位代表过度孤立、逃避人群，或在独处中陷入迷惘而脱离现实。它提醒你：独处是为了更好的相遇，不是切断一切；别用"寻求内在"当回避问题的借口。', teach:'隐士是"寻灯者"原型：老者拄杖、提灯照路、登临雪山。记住：他对应的功课是"先照亮自己，才能照亮他人"。是内省与智慧的守夜人。', sym:'六角星灯、登山之路、皑皑白雪——象征孤独中的内省与智慧的追寻。' },
+{ id:10, n:'命运之轮', en:'The Wheel of Fortune', num:'X', el:'火', kU:['转机','命定','循环','契机','好运'], kR:['时运不济','失控','抗拒改变','停滞','轮回'], m:'命运之轮象征周期的运转与机遇的到来。正位出现时，时势正在转变，好运与转机轮到你。它鼓励你顺应潮流、抓住上升拐点，明白世事有起有落，此刻轮盘正向有利方向转动。', r:'命运之轮逆位表示时运不济、计划受阻，感觉被外部力量牵制而无力回天。它提醒你：拐点终究会来，与其抗拒或怨天，不如调整适应，等待轮盘再次转动。', teach:'命运之轮是"天道循环"的符号：转轮上方的斯芬克斯与四角生灵（天牛/狮/鹰）。记住：一切皆有时，升与降都是周期的一部分。它教你"识时务，顺大势"。', sym:'转轮、斯芬克斯、四活物与黄道带——象征命运流转与宇宙大秩序。' },
+{ id:11, n:'正义', en:'Justice', num:'XI', el:'风', kU:['公平','真相','因果','平衡','裁决'], kR:['不公','失衡','偏见','逃避责任','误判'], m:'正义牌代表公平、真相与因果报应。正位出现时，提示一切将被公正对待，你种什么便收什么。它鼓励你以诚实与理性权衡，为自己负起责任，也象征法律与契约的合宜结果。', r:'正义逆位代表失衡、不公或被偏见蒙蔽真相，可能是在逃避责任、回避该面对的因果。它提醒你：请诚实面对自己，别让情绪玷污客观判断，重回平衡。', teach:'正义是"平衡之剑与天平"的意象。记住：它和"命运之轮"不同——轮盘是天命，正义是"你该如何公平动手"。审判之剑提示因果不虚。', sym:'长剑与天平、紫袍、帷幕两柱——象征公平裁决与理性的权衡。' },
+{ id:12, n:'倒吊人', en:'The Hanged Man', num:'XII', el:'水', kU:['觉醒','换位思考','放下','臣服','悬置'], kR:['无谓牺牲','卡住','拖延','抗拒','钻牛角尖'], m:'倒吊人象征自愿悬置与换一个视角看世界。正位提示你：暂时放下掌控，用不同角度看待局势，停下脚步作反思。看似停滞，实则完成了内在的转化与觉醒。', r:'倒吊人逆位代表卡在进退两难的泥潭、无谓的自我牺牲，或抗拒必要的停顿与放下。它提醒你：一味硬撑无益，该换角度、该放手时，就别再钻牛角尖。', teach:'倒吊人反挂但仍从容，头顶有光环、脚踝一条绳。记住：他不是被吊，是"心甘情愿地暂停"。这是"以退为进、换个角度看"的最高示范。', sym:'反向倒悬、金色光环、如T形十字架——象征自愿臣服与视角转换。' },
+{ id:13, n:'死神', en:'Death', num:'XIII', el:'水', kU:['结束','转变','放手','蜕变','重生'], kR:['抗拒结束','停滞','恐惧改变','抓握','拖延'], m:'死神代表某个阶段的终结与彻底的转化。正位出现时，提醒你旧有的一切结束是为了腾出空间给新生。放下执念，接受必要的告别，蜕变才能发生。它不是灾难，而是周期的必须。', r:'死神逆位代表抗拒变化、迟迟不肯放手，或因恐惧而让该结束的僵持下去。它提醒你：越抓着逝去的越痛苦，坦然关闭一扇门，新门才会打开。', teach:'死神牌其实是"重生"牌，画面唯美——日出、渡船、白马。记住：它的关键词是"转化"，不是"消失"。和愚人一样，结束常是新旅程的前奏。', sym:'白玫瑰旗帜、日出新生、渡河灵魂——象征终结与转化的必然。' },
+{ id:14, n:'节制', en:'Temperance', num:'XIV', el:'火', kU:['平衡','调和','融合','耐心','适度'], kR:['失衡','极端','失调','急躁','冲突'], m:'节制象征调和两极、保持中道与耐心。正位提示你在对立间找到平衡点，把不同元素融合成和谐，也代表病情好转、关系修复、节奏被放慢却稳健。它鼓励温和而持续。', r:'节制逆位代表失衡、走极端或操之过急，可能是身心失调、冲突难解，或因缺乏耐心而打乱节奏。它提醒你：回到适中之处，放慢，别让情绪推你到两极。', teach:'节制是天使用一只杯的水倒向另一只，象征"融合与过渡"。记住：它讲的不是控制，而是"让对立的能量和谐地流动"。是缓和剂、平衡者。', sym:'天使两杯倒水、一足入水一足岸上、鸢尾花与斜照——象征平衡与调和。' },
+{ id:15, n:'恶魔', en:'The Devil', num:'XV', el:'土', kU:['束缚','欲望','执着','沉迷','诱惑'], kR:['挣脱','觉醒','戒除','自由','看清'], m:'恶魔代表被欲望、执念或负面模式束缚的黑暗面。正位出现时，可能正沉溺于某种瘾、贪婪或控制的枷锁，你"自愿受困"（颈上锁链很松却不起身）。它提醒你正视自己的阴影与渴望。', r:'恶魔逆位是挣脱枷锁、认清幻觉的转机。代表你开始看破束缚、戒除沉迷，重新夺回自主权。它鼓励你剪断锁链，为自己的自由负起责任。', teach:'恶魔额头倒五角星、被锁的男女其实链子很松。记住这张牌最震撼的点："我们多半是自愿待在牢笼里的"。逆位=顿悟并挣脱。它让你面对内心的阴影。', sym:'倒五角星、人形锁链、火炬——象征物质诱惑与自我束缚。' },
+{ id:16, n:'高塔', en:'The Tower', num:'XVI', el:'火', kU:['剧变','崩解','顿悟','破除','意外'], kR:['余震','拖延','被压','抵抗改变','内溃前兆'], m:'高塔象征突如其来的颠覆与崩塌——旧结构被雷电击碎，强制性的真相涌现。正位出现时，某座看似坚固的"塔"（幻想、关系、执念）正在或将要瓦解。它痛但必要，是破除虚妄的警钟。', r:'高塔逆位代表崩解仍在进行但尚未成真，或你正拼命修补一座早该拆的危楼。它提醒你：与其拖延抵抗，不如顺应必要的瓦解，重建会更稳。', teach:'高塔是被雷劈的巴别塔，人从塔上坠落。记住：它象征"被真相击碎免不了的假我结构"。看似最惊悚，其实是清理与解放，是通往重生的必经爆破。', sym:'闪电击塔、烈焰、坠落的人与王冠——象征虚妄结构被现实击穿。' },
+{ id:17, n:'星星', en:'The Star', num:'XVII', el:'风', kU:['希望','疗愈','灵感','宁静','愿景'], kR:['失望','迷茫','信心动摇','不切实际','暗淡'], m:'星星是云开雾散后的希望与疗愈。正位出现时，经过风暴（高塔）后你重获内心的平静与信念，前方有光。它鼓励你怀抱愿景、修复身心，相信一切安好，并敢于许下心愿。', r:'星星逆位表示信心受挫、失望或对未来的愿景变得模糊，也可能是脱离现实、沉浸空想。它提醒你：找回微光，把愿景落实为小步可做的事，别放弃心中的希望。', teach:'星星是雨后裸身女子倒水于池，一注入水一注入地，天上一颗大星八颗小星。记住：它是"高塔重创后的疗愈与希望"，塔罗里最宁静治愈的一张牌。', sym:'裸身倒水、八芒星、池水飞鸟——象征疗愈、灵气与澄澈的希望。' },
+{ id:18, n:'月亮', en:'The Moon', num:'XVIII', el:'水', kU:['迷惘','潜意识','幻觉','恐惧','不确定'], kR:['拨云见月','识破','真相浮现','稳定','释然'], m:'月亮象征潜意识、迷惘与模糊不清的时刻。正位出现时，事物被迷雾笼罩，直觉与恐惧交织，真相尚未明朗。它提醒你：别急着下结论，夜里行走要依赖信任与觉察，等迷雾散去。', r:'月亮逆位代表迷雾散去、真相逐渐浮现，之前的不安与误解会得到澄清。它鼓励你走出阴霾，看清现实，从恐惧中解脱，重拾确定感。', teach:'月亮是月下犬狼望月、虾从水中爬出，象征潜意识与本能。记住：它说的是"看不清的阶段"。和星星(清晰的希望)相对，月亮=模糊的潜意识迷雾。', sym:'大月与侧脸、双塔、犬与狼、爬出的虾——象征潜意识与幽微的恐惧。' },
+{ id:19, n:'太阳', en:'The Sun', num:'XIX', el:'火', kU:['成功','喜悦','活力','诞生','光明'], kR:['快乐被遮蔽','骄傲','拖延','暂时低迷','过度乐观'], m:'太阳是正大光明的成功与喜悦，塔罗中最美好的一张牌。正位出现时，阴霾一扫而光，成果、健康、活力与真心的快乐涌来。它鼓励你尽情享受当下，自信而热忱地前进。', r:'太阳逆位并不算坏，只是快乐被暂时遮蔽、自信略降或有点骄傲自满，也代表进展稍缓。它提醒你：别为一时不顺失去光热，也避免得意忘形。', teach:'太阳是娃娃骑白马、向日葵与太阳笑脸。记住：它是终点前的光明狂欢。和月亮相反——太阳=清晰、成功、生命力全面外放。', sym:'灿烂太阳、戴花冠孩童骑马、向日葵——象征成功、纯粹与生命的欢愉。' },
+{ id:20, n:'审判', en:'Judgment', num:'XX', el:'火', kU:['觉醒','重生','觉醒召唤','审视','升华'], kR:['自我怀疑','逃避召唤','悔恨','迟疑','未醒'], m:'审判象征被召唤而觉醒、旧我得到重遇与升华。正位出现时，你正从过往经验中总结并重生，听见内心更高的召唤，得到宽恕与重新出发的机会。它鼓励你回应召唤。', r:'审判逆位代表抗拒那个高处的呼唤、怀疑自己，或因悔恨与迟疑而不愿直面过去。它提醒你：别再回避该承担与总结的事，原谅自己，才能走向新生。', teach:'审判是天使号角中的人从棺中释出，象征"内在的唤醒与更高召唤"。记住：它和死亡的"结束"不同——审判是"被召唤重估并升华"。', sym:'吹号天使、方舟中人、十字白旗——象征觉醒、召唤与命运的审判。' },
+{ id:21, n:'世界', en:'The World', num:'XXI', el:'土', kU:['圆满','完成','成就','整合','周游'], kR:['未竟','拖延','停滞','不圆满','差口气'], m:'世界是塔罗旅程的终章，象征圆满达成、目标实现与生命的整合。正位出现时，一个完整周期即将/已经圆满完成，你收获成就与庆祝。它鼓励你带着所学进入更大的天地。', r:'世界逆位代表"还差一步"的未竟感，可能因拖延或细节未完而迟迟无法收盘。它提醒你：看最后一段路，补齐缺口，完成它，别在终点前停下。', teach:'世界是舞女在花环中央，四角有四种生灵呼应命运之轮。记住：命运之轮问你"在转吗"，世界答"已经转完一整圈"。是终点的圆满。', sym:'花环环绕舞女、四活物与魔杖——象征圆成、完成与宇宙的和谐。' }
+];
+
+/* 小阿卡纳 · 权杖组（火元素 · 行动/热情/创造） 14 张 */
+const WANDS = [
+{ id:0, n:'权杖王牌', en:'Ace of Wands', num:'1', el:'火', kU:['灵感','新行动','热情','创造火花','机会'], kR:['动力不足','拖延','热情熄灭','计划难产','犹豫'], m:'权杖王牌是点燃行动火花的全新开始。正位出现时，新机遇、新创意、新热情正在萌芽，仿佛"第一把火"。它鼓励你抓住灵感立刻行动，别让火焰空烧。', r:'权杖王牌逆位代表激情与动力受阻，计划迟迟难产，可能是热情熄灭或方向未明。它提醒你：回归初心，找回让你热血的那件事，再点燃它。', teach:'每个花色的"王牌(1)"都是该元素的种子。权杖1=火种/行动的开始。记不住时就想"一根点了火的木棍"，象征最初的冲动与灵感。' },
+{ id:1, n:'权杖二', en:'Two of Wands', num:'2', el:'火', kU:['规划','展望','权衡','扩张','选择'], kR:['恐惧未知','原地踏步','规划过周','畏缩','短视'], m:'权杖二代表站稳当下的同时眺望远方，为未来发展做规划。正位时，你握有资源和选择，正权衡如何扩大版图。它鼓励你有世界视野，敢于做布局。', r:'权杖二逆位表示害怕踏出舒适圈、规划过度却不敢执行，或视野受限。它提醒你：地图画得再漂亮也要启程，先迈出第一步。', teach:'画面是贵族手握权杖眺望十字路与山海。权杖二="选择与扩张的起点"。记住：一张牌在脚边、一张在手里，寓意"已有成果，正谋未来"。' },
+{ id:2, n:'权杖三', en:'Three of Wands', num:'3', el:'火', kU:['远航','展望前景','扩张','积累后的起航','等待时机'], kR:['阻碍','延误','视野受阻','进展停滞','坐失良机'], m:'权杖三象征前期努力已就绪，正准备扬帆远航。正位时，通常表示事业/计划已进入稳定扩张阶段，前景看好但尚需远见与等待。它鼓励你往更远看，付诸行动。', r:'权杖三逆位代表计划受阻、进展拖沓，或过度观望而坐失良机。它提醒你：机会需要主动把握，别只顾远眺而忘了登船。', teach:'画面是商人俯瞰海面望向远航的船。权杖三="准备启程、望向远方"。它和前两张连起来记：1点燃→2规划→3准备远航。一串起来就好背。' },
+{ id:3, n:'权杖四', en:'Four of Wands', num:'4', el:'火', kU:['庆祝','安定','家庭','成就达成','喜悦'], kR:['不稳','动荡','过渡感','庆祝推迟','缺乏根基'], m:'权杖四象征阶段性成果达成、值得庆祝的时刻，常代表家庭、社群与稳定的港湾。正位时，成绩落地、关系安定，适合欢庆与休整。它鼓励你享受这份安稳。', r:'权杖四逆位代表根基不顺、庆祝推迟，或身处过渡期缺乏安定感。它提醒你：先稳固地基，把开心的果实落实到生活中，才算真正落地。', teach:'画面是四根权杖支起花棚、人们欢庆。权杖四="庆祝/家/安定"。记住：权杖系讲行动之火，到4就是"行动有了结果，先庆祝一下"。' },
+{ id:4, n:'权杖五', en:'Five of Wands', num:'5', el:'火', kU:['竞争','冲突','切磋','混战','多方角力'], kR:['内耗','回避冲突','争斗失控','推卸','挑刺'], m:'权杖五象征竞争、较量与彼此切磋的混乱。正位时，可能是多方竞争、意见分歧，也像一场良性竞技，能激发潜能。它鼓励你面对竞争而非回避。', r:'权杖五逆位代表无谓争执、内耗，或一方已退出混战。它提醒你：分清哪些是建设性的较劲，哪些纯属消耗，及时抽身或化解。', teach:'画面是五根权杖在空中交错互击。权杖五="竞争/混乱的冲突"。它是火元素的"冲突牌"，通常提示"别再乱打，聪明地打"。' },
+{ id:5, n:'权杖六', en:'Six of Wands', num:'6', el:'火', kU:['胜利','认可','凯旋','好消息','公开成就'], kR:['虚名','失落','被质疑','盛极而衰','缺乏肯定'], m:'权杖六象征凯旋与公开的认可，正位时你正取得胜利、获得赞美与掌声，好消息将至。它鼓励你自信领受这份荣耀，把胜利转化为更大动力。', r:'权杖六逆位代表盛名未稳或实不至名，可能是成功遭质疑、胜利黯淡，或过度依赖他人认可。它提醒你：别为虚名所累，真正的成就在自己心里。', teach:'画面是骑士执权杖凯旋、众人簇拥，权杖上挂月桂。权杖六="胜利与认可"。故事线到6，行动之火终于换来公开的凯旋。' },
+{ id:6, n:'权杖七', en:'Seven of Wands', num:'7', el:'火', kU:['坚守','捍卫','迎战','坚持立场','上风'], kR:['寡不敌众','退缩','压力过大','放弃阵地','动摇'], m:'权杖七象征站在制高点坚守立场、抵御来势的挑战。正位时，你处在防守却有优势的位置，只要坚持不退缩，就能守住局面。它鼓励你有底气地迎战。', r:'权杖七逆位代表压力沉重、感到寡不敌众，或动摇想放弃阵地。它提醒你：评估清楚是"该守"还是"该撤"，必要时有智慧地调整战线。', teach:'画面是高处者挥舞权杖抵挡下方的挑战。权杖七="坚持防守"。和权杖五(乱打)不同，这是"守住制高点"。记住两者的区别就分清了。' },
+{ id:7, n:'权杖八', en:'Eight of Wands', num:'8', el:'火', kU:['快速进展','消息将至','行动加速','事态明朗','迅速传播'], kR:['延误','阻滞','节奏被打乱','消息延迟','急于求成'], m:'权杖八象征飞速推进、消息与进展迅速传来。正位时，事态加速明朗，计划进入快车道，好消息接踵而至。它鼓励你顺应这股迅捷的势能，快速推进。', r:'权杖八逆位代表进程受阻、节奏被打乱或消息迟迟不来。它提醒你：检查滞后环节，别因急躁乱了方寸，耐心等待势能重新凝聚。', teach:'画面是八根权杖齐射飞驰，寓意"疾如箭矢"。权杖八="快速进展、急速到来"。火元素到8，行动已进入高速运转的爆发期。' },
+{ id:8, n:'权杖九', en:'Nine of Wands', num:'9', el:'火', kU:['韧性','坚持到底','警惕','坚守阵地','最后一搏'], kR:['精疲力竭','怀疑','过劳','防备过度','动摇'], m:'权杖九象征历经多次考验后仍愿顽强坚守。正位时，你已疲惫但仍有韧性，是"最后关头"的坚守。它鼓励你咬紧牙关完成最后一步，同时注意自我修复。', r:'权杖九逆位代表疲惫不堪、心力交瘁，或过度防御而草木皆兵。它提醒你：学会信任与被保护，别独自硬扛到耗竭。', teach:'画面是战士身上带伤仍倚杖而立、身后立着八根权杖。权杖九="坚持到最后一刻的韧性"。它是火元素"守成"的最累阶段。' },
+{ id:9, n:'权杖十', en:'Ten of Wands', num:'10', el:'火', kU:['重担','负担','责任过重','咬牙扛住','完成在即'], kR:['不堪重负','崩溃','揽责过多','放下我执','力不从心'], m:'权杖十象征扛起沉重责任、临近终点的重担。正位时，你承担了很多，虽累但目的地就在前方。它提醒你：能坚持到终点值得称赞，但也要学会与求助。', r:'权杖十逆位代表不堪重负、快要被压垮，或背负了本不必扛的责任。它提醒你：适时放下、分担，别让过度的责任感压垮自己。', teach:'画面是弯腰怀抱十根权杖走向小屋。权杖十="重担/责任过重"。权杖组到10是"行动之火烧到了尽头"，该交付并放下负担了。' },
+{ id:10, n:'权杖侍从', en:'Page of Wands', num:'侍从', el:'火', kU:['探索','热情','新点子','学习','好奇'], kR:['三分钟热度','急躁','计划不切实际','缺乏定性','空谈'], m:'权杖侍从是充满好奇与热情的探索者，象征新的热情、灵感与初生牛犊的冲劲。正位时，可能是新的学习、小道消息或创意萌芽。它鼓励你带着热情去发现。', r:'权杖侍从逆位代表热情来得快去得也快、易三分钟热度，或计划过于理想化。它提醒你：把热情化为行动和坚持，而不是只停在兴奋。', teach:'宫廷牌代表"人/阶段"：侍从=学生/新手。权杖侍从="热情的新手"，手里握权杖四处打量。记住四侍从各有的性格，它是火系最俏皮的那个。' },
+{ id:11, n:'权杖骑士', en:'Knight of Wands', num:'骑士', el:'火', kU:['冲刺','冒险','进取','精力充沛','直奔目标'], kR:['冲动','鲁莽','善变','半途而废','横冲直撞'], m:'权杖骑士是充满爆发力的行动派，象征快速出击、勇往直前的冒险。正位时，事态加速，你充满冲劲去争取目标，也常代表充满魅力的人或紧张的启动。', r:'权杖骑士逆位代表冲过头、鲁莽冒进或善变难定，可能因一时冲动而半途而废。它提醒你：给热情装上方向与刹车。', teach:'骑士=成年期的赶路/行动者。权杖骑士="骑着火马的开拓者"，烈焰般的推进。记住四骑士：权杖最冲、圣杯最浪漫、宝剑最理性、星币最务实。' },
+{ id:12, n:'权杖王后', en:'Queen of Wands', num:'王后', el:'火', kU:['自信','魅力','热情','鼓舞','领袖气质'], kR:['自我中心','嫉妒','急躁','强势','内耗'], m:'权杖王后是自信、热情而有魅力的领导者，象征以温暖和感染力影响他人。正位时，你可能散发强大气场、吸引追随，也代表一位爽朗有力的女性/自我。', r:'权杖王后逆位代表自信过盛、强势专断，或因内在不安而需要外界肯定来撑起气场。它提醒你：真正的魅力来自内在丰足，而非掌控。', teach:'王后=成熟的"内在成熟期"女性角色。权杖王后="热情的领袖"，向日葵与猫象征气场与被吸引。记住：她靠感染力而非命令领导。' },
+{ id:13, n:'权杖国王', en:'King of Wands', num:'国王', el:'火', kU:['远见','魄力','开创','领袖','果断'], kR:['专断','急躁','骄傲自大','决策冲动','失控'], m:'权杖国王是富有远见与魄力的开创型领袖，象征把握大事、敢于拍板的决断力。正位时，事业有方向、行动有魄力，你正掌舵前行，也代表一位有远见的权威者。', r:'权杖国王逆位代表独断专行、骄傲自满，或决策冲动而欠缺深思。它提醒你：远见需配耐心，魄力也要有边界，虚心纳谏。', teach:'国王=成熟的"掌舵者"男性角色。权杖国王="开创的君主"，手握权杖、身边有蜥蜴(智慧)。记住：他是想法推动现实的远方指挥官。' }
+];
+
+/* 小阿卡纳 · 圣杯组（水元素 · 情感/关系/直觉） 14 张 */
+const CUPS = [
+{ id:0, n:'圣杯王牌', en:'Ace of Cups', num:'1', el:'水', kU:['新生情感','爱','直觉','心灵敞开','喜悦'], kR:['情感压抑','心灵封闭','爱意受阻','无感','内向'], m:'圣杯王牌是情感与爱的泉源，象征新的爱情、灵感或情感的开启。正位出现时，心门敞开，喜悦与爱意充盈，可能是新关系或新的感性体验。它鼓励你表达与接收爱。', r:'圣杯王牌逆位代表情感压抑、心灵闭塞，或爱意受阻不被回应。它提醒你：先觉察是否关上了心门，愿不愿再去爱与被爱。', teach:'圣杯=水=情感。圣杯王牌="溢出的杯子，情感的源头"。记住：圣杯系代表内心世界，1就是"心里涌出爱的那一刹那"。' },
+{ id:1, n:'圣杯二', en:'Two of Cups', num:'2', el:'水', kU:['联结','臣服的爱','和解','相互吸引','伙伴'], kR:['失衡','分离','误解','单向付出','貌合神离'], m:'圣杯二象征真心相待的联结、关系与和解。正位时，感情/合作关系和谐，两人心意相通，也可能是化解误会的良机。它鼓励真诚、平等地交往。', r:'圣杯二逆位代表关系失衡、单向付出或误会产生裂痕。它提醒你：检查这段联结是否对等，坦诚沟通而非回避。', teach:'画面是两人举杯相向、彼此呼应。圣杯二="双向的情感联结"。记住：它是塔罗里"平等爱侣"的象征，重在相互给予。' },
+{ id:2, n:'圣杯三', en:'Three of Cups', num:'3', el:'水', kU:['庆祝','友谊','和乐','分享','社群'], kR:['流言蜚语','过度放纵','三人成行生变','孤立','浅层社交'], m:'圣杯三象征友谊、庆贺与身心富足的和乐时光。正位时，与三五好友相聚同欢，成果共享，氛围愉悦。它鼓励你享受人际的温暖与分享的快乐。', r:'圣杯三逆位代表社交失和、流言困扰，或过度放纵表面热闹而内心空虚。它提醒你：分辨真心与应酬，别让欢聚变成消耗。', teach:'画面是三女举杯共舞。圣杯三="庆祝、友谊"。记住：它和权杖四都讲庆祝，但权杖四偏家庭/成果，圣杯三偏朋友/情感共享。' },
+{ id:3, n:'圣杯四', en:'Four of Cups', num:'4', el:'水', kU:['倦怠','疏离','自省','错过机会','意兴阑珊'], kR:['重新看见','觉醒','走出阴霾','抓住机会','解开心结'], m:'圣杯四象征身在丰足却心不在焉、感到腻味与疏离。正位时，你对眼前的事物提不起劲，可能错过天上的机会（云端递来的杯）。它鼓励你调整心境，重新看见拥有。', r:'圣杯四逆位代表倦怠将尽、重新打开心，看见曾被忽略的机会并愿意把握。它提醒你：主动走出情绪低谷，机会正在等你伸手。', teach:'画面是树下人心不在焉，天上递来一只杯。圣杯四="身在福中不知福的倦怠"。记住：正位是"没看见机会"，逆位是"终于看见了"。' },
+{ id:4, n:'圣杯五', en:'Five of Cups', num:'5', el:'水', kU:['失落','悲伤','悔恨','沉浸过去','失去'], kR:['走出阴霾','接纳','放下去','重获希望','修复'], m:'圣杯五象征因失去而沉浸在悲伤与后悔中。正位时，你可能只盯着翻倒的杯子，却忽略了身后还立着两只完好的杯。它提醒你：允许悲伤，但别错过尚存的美好。', r:'圣杯五逆位代表正在走出悲恸、原谅并向前看，能够放下过去重新投入生活。它鼓励你接纳损失，迎接修复与新生。', teach:'画面是黑衣人低头看三个倒杯，身后仍有两只立杯、远处有桥。圣杯五="失落与悲伤"。记住它的善意提醒：身后还有没翻的杯和过河的桥。' },
+{ id:5, n:'圣杯六', en:'Six of Cups', num:'6', el:'水', kU:['怀旧','童年','纯真','馈赠','美好回忆'], kR:['困于过去','长不大','依恋过度','旧事重提','不切实际'], m:'圣杯六象征怀旧、童年与纯真的美好回忆。正位时，可能重游故地、收到馈赠，或从过去的温暖中获得滋养。它鼓励你感激过去，也以纯真之心待当下。', r:'圣杯六逆位代表过度依恋过去、迟迟不向前，可能困在回忆或旧关系里。它提醒你：过去很珍贵，但别让它遮住现在与未来。', teach:'画面是孩童递花、城堡庭院、铜杯盛花。圣杯六="童年的纯真与馈赠"。记住：向前看是它的功课端，怀旧只是它的外壳。' },
+{ id:6, n:'圣杯七', en:'Seven of Cups', num:'7', el:'水', kU:['幻想','选择','诱惑','梦想','过度描画'], kR:['清醒','落地','做决定','认清现实','聚焦'], m:'圣杯七象征身陷多种幻想与诱惑的选择迷雾。正位时，众多可能性（梦想、诱惑）浮在云端，却不接地气。它提醒你：分辨真实与幻象，别被花花选择晃晕。', r:'圣杯七逆位代表迷雾散开、终于清醒落地，能从幻想中做出务实的选择。它鼓励你把梦想落实到可执行的一步。', teach:'画面是七个云上圣杯装着各种物象(城堡/珠宝/龙/人头)。圣杯七="幻想的选择"。记住：它是提醒"别挑花眼"，要抓能落地的那一个。' },
+{ id:7, n:'圣杯八', en:'Eight of Cups', num:'8', el:'水', kU:['放下','离开','追求更深','寻求向往','转向'], kR:['犹豫不决','不敢离开','留恋旧地','原地踏步','恐惧改变'], m:'圣杯八象征收拾行囊、主动离开现有的安逸去追寻更深的满足。正位时，你知道现有环境已不足以滋养自己，决定离开踏向未知。它鼓励你听从内心的呼唤。', r:'圣杯八逆位代表想走却不敢走，留恋此处、原地徘徊，或害怕冒险而错失成长。它提醒你：若心已不在此，留下的代价往往更大。', teach:'画面是八杯整齐，一人背杖迈向远山。圣杯八="为更高目标而离开"。记住：区别于圣杯五(被动失去)，这是"主动放下"。' },
+{ id:8, n:'圣杯九', en:'Nine of Cups', num:'9', el:'水', kU:['如愿','满足','幸福','心愿达成','自得其乐'], kR:['贪求不满','自满','肤浅快感','过度奢求','表面光鲜'], m:'圣杯九常被称为"愿望成真牌"，象征自我满足与心愿实现。正位时，你心满意足、所求多半如愿，宜感恩并安享这份满足。它鼓励你珍惜小确幸。', r:'圣杯九逆位代表贪得无厌、表面光鲜内心空虚，或对已有仍不满足。它提醒你：快乐若只靠外在堆砌，永远填不满；从内在辨认真正的满足。', teach:'画面是心满意足者坐拥九只圣杯簇成背景弧。圣杯九="愿望成真、自得"。记住：它是圣杯系里最"爽"的一张，但也暗藏"贪"的提醒。' },
+{ id:9, n:'圣杯十', en:'Ten of Cups', num:'10', el:'水', kU:['幸福家庭','圆满和谐','和乐','内心富足','天伦'], kR:['家庭失和','理想幻灭','关系破裂','表里不一','幸福受阻'], m:'圣杯十象征情感圆满、家庭和睦与内心真正的幸福。正位时，关系和谐、生活安稳，象征你看重的"理想家园"正在实现。它鼓励你享受这份踏实的长久幸福。', r:'圣杯十逆位代表家庭关系紧张、理想与现实的落差，或表面和气内有裂痕。它提醒你：真正的和谐来自成员间的真诚与努力，而非勉强维持。', teach:'画面是彩虹下夫妻相拥、孩子牵手、家宅温馨。圣杯十="圆满的家与幸福"。圣杯组到10，情感终于修成正果、落地为家。' },
+{ id:10, n:'圣杯侍从', en:'Page of Cups', num:'侍从', el:'水', kU:['敏感','灵感','好消息','愿望','创意直觉'], kR:['情绪化','孩子气','空想','被忽略','幼稚'], m:'圣杯侍从象征敏感细腻、直觉与创意的萌芽，也带来情感上的好消息或新讯息。正位时，可能是灵感涌现、艺术创作或浪漫消息。它鼓励你珍视内心的柔软与想象力。', r:'圣杯侍从逆位代表情绪不稳、过分天真或空想不落地，也可能是好消息被延误。它提醒你：把灵感与现实接轨，别只活在情绪里。', teach:'侍从=学生/新手。圣杯侍从="捧杯凝视杯中鱼的情感新手"。记住：圣杯系侍从最敏锐直觉，象征"心里孵化的感性萌芽与灵感"。' },
+{ id:11, n:'圣杯骑士', en:'Knight of Cups', num:'骑士', el:'水', kU:['浪漫','邀约','追寻理想','魅力','梦幻追求'], kR:['情绪化','不切实际','三心二意','空头承诺','滥情'], m:'圣杯骑士是深情而浪漫的追寻者，象征带着爱意而来、走向心之所向。正位时，可能是情感邀约、浪漫表达或为理想付出。它鼓励你温柔但坚定地追随内心。', r:'圣杯骑士逆位代表情绪失控、空头承诺或三心二意，也可能沉溺浪漫梦而不负责任。它提醒你：爱要说，也要做；别用甜言蜜语掩盖逃避。', teach:'骑士=赶路的行动者。圣杯骑士="捧杯缓行的浪漫骑士"。记住四骑士对比：权杖冲/圣杯浪漫。他是"为爱行走"的那个。' },
+{ id:12, n:'圣杯王后', en:'Queen of Cups', num:'王后', el:'水', kU:['共情','直觉','包容','滋养','洞察人心'], kR:['情绪淹没','过度付出','压抑需求','界限模糊','多愁善感'], m:'圣杯王后是如水般柔和、善解人意的情感角色，象征强大的共情与直觉、温柔的包容。正位时，你或身边的人充满疗愈力，能营造温暖的氛围。它鼓励你发挥这份同理心。', r:'圣杯王后逆位代表情绪过度淹没自我、为照顾他人而耗尽自己，或边界模糊、过度感性。它提醒你：温柔也需有边界，先安顿自己。', teach:'王后=成熟的女性角色。圣杯王后="捧杯静观的水样女子"，象征直觉与情感智慧。记住：她是"母亲/疗愈者"的原型，靠感受而非逻辑识人。' },
+{ id:13, n:'圣杯国王', en:'King of Cups', num:'国王', el:'水', kU:['沉稳','情感成熟','掌控情绪','同理心','宽容'], kR:['情绪压抑','表里不一','失控','虚伪','冷处理'], m:'圣杯国王是成熟而平衡的情感领袖，象征能在汹涌情绪中保持沉稳、以智慧和同理心待人。正位时，你或一位权威者情绪成熟、值得信赖。它鼓励你以柔稳驾驭情感。', r:'圣杯国王逆位代表情绪被压抑或失控、表里不一，或滥用情感操控他人而缺乏真诚。它提醒你：情绪宜流动而非压抑，也别用沉稳当冷漠的伪装。', teach:'国王=成熟的男性角色。圣杯国王="端坐海上王座、稳捧圣杯"的君王。记住：他是"情绪的主人"，象征以成熟方式处理内心的水。' }
+];
+
+/* 小阿卡纳 · 宝剑组（风元素 · 思考/理性/冲突） 14 张 */
+const SWORDS = [
+{ id:0, n:'宝剑王牌', en:'Ace of Swords', num:'1', el:'风', kU:['突破','真相','清晰','力量之剑','决断'], kR:['混乱','无断','真相被掩','权宜之谋','误用'], m:'宝剑王牌是划破迷雾的一剑，象征思想的突破与真相的清晰。正位时，你获得关键的洞见、做出清醒决断，思路豁然开朗。它鼓励你以理智斩断困扰，说真话、定方向。', r:'宝剑王牌逆位代表思绪混乱、真相被掩盖，或判断被情绪与利益干扰。它提醒你：先厘清事实再行动，别被头脑的迷雾带走。', teach:'宝剑=风=思考。宝剑王牌="直立的智慧之剑"，象征灵光乍现的真理。记住：它是"理智能斩断困惑"的第一剑。' },
+{ id:1, n:'宝剑二', en:'Two of Swords', num:'2', el:'风', kU:['僵持','逃避','平衡抉择','蒙眼','卡住'], kR:['做出抉择','看清','解除封锁','破局','面对'], m:'宝剑二象征内心的僵持与进退两难，蒙上眼睛不愿直面选择。正位时，你卡在权衡之间，回避关键决定。它提醒你：掩耳盗铃只会拖延，需摘下眼罩看清现实。', r:'宝剑二逆位代表终于做出决定、解开僵局，愿意看清并面对现实。它鼓励你走出两难，迈步向前。', teach:'画面是蒙眼者交叉持双剑、身后是海月。宝剑二="僵持与逃避的选择"。记住：它是"假装看不见、不敢选"的卡点。' },
+{ id:2, n:'宝剑三', en:'Three of Swords', num:'3', el:'风', kU:['心碎','痛楚','真相之痛','分离','受伤'], kR:['释怀','疗伤','和解','走出痛','修复'], m:'宝剑三象征心头的刺、痛心与悲伤，常与言语伤害或分离相关。正位时，可能经历失落、误解或真相带来的痛。它提醒你：痛是真实的，允许自己去感受和疗愈。', r:'宝剑三逆位代表心痛逐渐愈合、放下怨怼，开始释怀与和解。它鼓励你原谅、清理伤口，让心重新轻盈。', teach:'画面是三剑穿透红心、阴云密布。宝剑三="心碎之痛"。记住它其实很"直白"：心被刺穿=受伤。逆位=拔剑疗伤。' },
+{ id:3, n:'宝剑四', en:'Four of Swords', num:'4', el:'风', kU:['休整','疗愈','暂驻','静修','恢复'], kR:['操劳过度','无法安歇','复发','心神不定','匆忙复工'], m:'宝剑四象征暂停、静养与休整，是一张"给自己充电"的牌。正位时，提醒你放慢，从战斗与操心中退下来休息，为下一步储备心力。它鼓励你好好休息。', r:'宝剑四逆位代表休息不足、急于复工，或旧问题卷土重来。它提醒你：没养好就上路反而更慢，宁可暂停也要恢复。', teach:'画面是教堂里平躺的骑士、三剑竖悬，一剑横放。宝剑四="休养生息"。记住它：是"中场暂停"，不是永远停下。' },
+{ id:4, n:'宝剑五', en:'Five of Swords', num:'5', el:'风', kU:['冲突','战胜却失去','不义之战','刺伤','取胜为代价'], kR:['和解','释放','止损','放低姿态','内疚'], m:'宝剑五象征一场"赢了也输"的争执，常是伤人的、不公平的对决。正位时，你也许在口角或竞争中占了上风，却伤害了关系与对方。它提醒你：问自己这胜利值不值得。', r:'宝剑五逆位代表冲突告一段落、愿意和解止损，放下争强与怨气。它鼓励你以和为贵，别再把输赢看得太重。', teach:'画面是抢先者腋下夹剑回望远处落败者。宝剑五="赢了却难看"。记住它是风之争斗里"代价沉重"的一张。' },
+{ id:5, n:'宝剑六', en:'Six of Swords', num:'6', el:'风', kU:['过渡','驶离困境','疗愈之旅','平静','转危为安'], kR:['卡在过渡','回程','遗留问题','难以放下','反复'], m:'宝剑六象征划离动荡、驶向平静的水域，是一段疗愈与过渡的旅程。正位时，你已经离开风暴中心，虽仍未完全着陆，但方向朝向安稳。它鼓励你带着教训继续前行。', r:'宝剑六逆位代表放不下过去、过渡受阻，或问题反复回头。它提醒你：船已离岸就别总回望，把未了的情绪妥善处理再出发。', teach:'画面是摆渡人载六剑平稳航行。宝剑六="驶离困境、走向平静"。记住它是宝剑系里难得的"平和过渡"牌。' },
+{ id:6, n:'宝剑七', en:'Seven of Swords', num:'7', el:'风', kU:['隐黐','策略','取巧','私密行动','独善其身'], kR:['败露','自食其果','坦白','金蝉脱壳','诚信回归'], m:'宝剑七象征暗中行事、策略性撤退或有所保留。正位时，你可能在独自筹谋、取巧拿取，或在保留自己的底牌。它提醒你审视这份"偷偷摸摸"是否稳妥、是否背离诚信。', r:'宝剑七逆位代表计谋败露、自食其果，或是时候坦白面对。它鼓励你公开坦诚，别再靠小聪明取巧。', teach:'画面是黑衣人抱五剑悄悄溜走、身后留两剑。宝剑七="暗中取巧的战术"。记住它是"聪明用错地方"的代表。' },
+{ id:7, n:'宝剑八', en:'Eight of Swords', num:'8', el:'风', kU:['受困','自我设限','束缚','无力','视野被遮'], kR:['挣脱','觉醒','看清出口','解除限制','重获自由'], m:'宝剑八象征身陷包围、四周仿佛都是限制的无力感。正位时，你感觉被锁住、走投无路——但锁链其实很松，障碍多来自内心设限。它提醒你：出口一直存在，先解开心魔。', r:'宝剑八逆位代表挣脱束缚、看清真相、找到突破口。它鼓励你放下恐惧，勇敢迈出被"看似困住"的一步。', teach:'画面是蒙眼女子身处剑阵，锁链却松松垂落。宝剑八="自我设限的困局"。记住它最深的一句：真正困住你的往往是头脑里的框。' },
+{ id:8, n:'宝剑九', en:'Nine of Swords', num:'9', el:'风', kU:['焦虑','噩梦','忧惧','失眠','内疚'], kR:['走出阴霾','释放','希望的曙光','停止自责','求助'], m:'宝剑九象征深夜的焦虑、噩梦与难眠的忧惧。正位时，思维被不安与自责消耗，精神的痛比身体更甚。它提醒你：这份焦虑可能被放大，不必独自硬扛，允许他人倾听与帮助。', r:'宝剑九逆位代表焦虑逐渐缓解、承认并释放情绪、开始走出阴霾。它鼓励你求助、接受支持，迎来曙光。', teach:'画面是深夜披衣坐床、掩面忧愁者。宝剑九="焦虑与噩梦"。记住它是"头脑制造的痛苦"，逆位=意识到"其实没那么糟并求助"。' },
+{ id:9, n:'宝剑十', en:'Ten of Swords', num:'10', el:'风', kU:['谷底','结束','痛到顶点','重生前夕','最后的痛'], kR:['触底反弹','修复','放下过去','曙光','复原'], m:'宝剑十象征一段关系的彻底终结、痛到谷底的阶段，但这也是"结束最深处"的那一刻——逆境已落到底。正位时，看似最绝望，实则黎明将临。它提醒你：结束了才可能重生。', r:'宝剑十逆位代表正从谷底爬起、愿意放下过往、迎来修复与曙光。它鼓励你别再恋战，把伤痛留在过去，向前走。', teach:'画面是全身被十剑贯穿、天空却已曙光。宝剑十="跌到谷底的结束"。记住它最妙的点：这已是"最痛"，往后再无下坠，只能上升。' },
+{ id:10, n:'宝剑侍从', en:'Page of Swords', num:'侍从', el:'风', kU:['警觉','好奇','观察','新想法','求知'], kR:['多疑','口无遮拦','分心','搬弄是非','肤浅'], m:'宝剑侍从是机敏好奇、善于观察的求知者，象征新资讯、警觉与敏锐头脑。正位时，你可能在学习新知、收集信息或在玩转新的点子。它鼓励你保持好奇与审慎。', r:'宝剑侍从逆位代表多疑挑剔、口无遮拦，或注意力涣散、说而未查。它提醒你：言语有分量，先求实再发声。', teach:'侍从=学生/新手。宝剑侍从="举剑观察的风系少年"。记住它是四侍从里最好奇、最爱探究的一个。' },
+{ id:11, n:'宝剑骑士', en:'Knight of Swords', num:'骑士', el:'风', kU:['快攻','直言','冲劲','果断出击','势如破竹'], kR:['鲁莽','冲动反击','口出伤人','莽撞','失控'], m:'宝剑骑士象征以速度和气势直奔目标的强势行动者。正位时，事情推进极快、言辞犀利、势如破竹，你带着清晰的目标冲刺。它鼓励你勇敢直言，但也注意分寸。', r:'宝剑骑士逆位代表冲过头、言语伤人、鲁莽决策而招致反效果。它提醒你：快不等于对，先稳住方向盘再提速。', teach:'骑士=赶路行动者。宝剑骑士="举剑冲锋的风系骑士"。记住四骑士：他是最锐利、最飞快也最易冲过头的那位。' },
+{ id:12, n:'宝剑王后', en:'Queen of Swords', num:'王后', el:'风', kU:['智谋','独立','通透','明辨','冷醒'], kR:['尖刻','冷峻','猜忌','抑郁','过于理性'], m:'宝剑王后是冷静、独立而通透的智性角色，象征以清晰头脑看透本质、不被情绪干扰。正位时，你理性过人、界限分明、判断犀利。它鼓励你以明辨与独立待世，同时守住温度。', r:'宝剑王后逆位代表过于冷漠尖刻、爱猜忌，或因理性过头而拒人千里。它提醒你：锋利要用对地方，智慧也需温柔包裹。', teach:'王后=成熟的女性角色。宝剑王后="举剑直立的清醒女性"，象征独立思考与明辨。记住她是"最冷感最精明"的女王。' },
+{ id:13, n:'宝剑国王', en:'King of Swords', num:'国王', el:'风', kU:['权威','公正','逻辑','真相','决策者'], kR:['专断','冷酷','滥用权力','武断','不近人情'], m:'宝剑国王是理性、公正而权威的判断者，象征以实事求是和逻辑作出决策。正位时，你或一位权威以公正清明裁断事务，是值得信赖的智性领袖。它鼓励你保持头脑清醒、坚守原则。', r:'宝剑国王逆位代表专断冷酷、滥用权力或只讲理不讲情，判断有失公允。它提醒你：权威也需倾听，别让理性变成冷硬。', teach:'国王=成熟的权威角色。宝剑国王="端坐王座、执剑判案的君王"。记住他是"说理不说情"的最高裁决者，象征公正与逻辑。' }
+];
+
+/* 小阿卡纳 · 星币组（土元素 · 物质/事业/实际） 14 张 */
+const PENTACLES = [
+{ id:0, n:'星币王牌', en:'Ace of Pentacles', num:'1', el:'土', kU:['新机会','物质开端','财源开','务实起步','落地'], kR:['机会流失','物质不稳','错失','取此失被','未落实'], m:'星币王牌象征物质与实业的种子，崭新的财富/事业机会落地。正位时，钱、工作、健康等实在层面迎来新开端，是可触摸的进展。它鼓励你好好把握并脚踏实地培育它。', r:'星币王牌逆位代表机会来却没接住、物质基础不稳，或空有计划未落地。它提醒你：把念头转化为行动和实物，才有真实收获。', teach:'星币=土=物质。星币王牌="托起的钱币，物质开端的种子"。记住星币系代表看得见摸得着的现实世界，1就是"往现实投下一粒金种子"。' },
+{ id:1, n:'星币二', en:'Two of Pentacles', num:'2', el:'土', kU:['平衡','兼顾','灵活应对','取舍','节奏'], kR:['失衡','应接不暇','顾此失彼','抓不住','紧张'], m:'星币二象征在多重事务间灵活周旋、保持平衡。正位时，你要同时处理几件事，需善于分配与取舍，像杂耍般找到节奏。它鼓励你保持弹性、随机应变。', r:'星币二逆位代表忙于应付却失衡、抓一丢一，或财务/时间规划出岔。它提醒你：不需样样抓，学会优先级，松一松手中太满的球。', teach:'画面是舞者抛掷两会转的星币、身后波浪起伏。星币二="多重事务的平衡与取舍"。记住它讲的是"在变化中保持灵活"。' },
+{ id:2, n:'星币三', en:'Three of Pentacles', num:'3', el:'土', kU:['协作','专业','技艺萌芽','团队','认可'], kR:['配合不佳','水准落','被低估','各自为政','瑕疵'], m:'星币三象征专业技能获得认可、团队协作成果显现。正位时，你的努力与技艺被看见，合作顺畅，事业初步成型。它鼓励你精进专业、乐于协作。', r:'星币三逆位代表团队配合不佳、水准不齐或努力被忽视，也可能是闭门造车。它提醒你：虚心向人求教，协作才是合力。', teach:'画面是教堂里工匠与规划者共同监工。星币三="专业与团队的协作"。记住它是"靠手艺和合作把构想盖成实物"的一步。' },
+{ id:3, n:'星币四', en:'Four of Pentacles', num:'4', el:'土', kU:['守财','掌控','稳定','囤积','安全感'], kR:['执念','吝刻','被物束','微观不放','失去掌控'], m:'星币四象征牢牢抓住所拥有的，追求稳定与控制感。正位时，你对财务/资源小心看护，注重安全与秩序。它提醒你：守成是好事，但别因恐惧而抓得过紧。', r:'星币四逆位代表过度紧握、吝刻或因恐惧而囤积，也可能出现失控、松钳事件。它提醒你：真正的安全感是内在的，学会放手与流动。', teach:'画面是头戴星币冠、双手抱币、脚踩星币的守财者。星币四="紧抓不放的守成"。记住它提醒"抓住"之外，也要"敢于松开"。' },
+{ id:4, n:'星币五', en:'Five of Pentacles', num:'5', el:'土', kU:['困顿','短缺','匮乏','落难','寒冬'], kR:['回稳','复苏','走出困境','受助','转机'], m:'星币五象征物质或情感上的困顿与匮乏，处在艰难时刻。正位时，可能财务吃紧、身心疲惫，或感到被冷落。它提醒你：寒冬终会过去，留意身边的帮助与温暖。', r:'星币五逆位代表正在走出困境、匮乏缓解，接受帮助并迈向复苏。它鼓励你看清援助就在身旁，别独自硬扛。', teach:'画面是风雪中两个朝人蹒跚而行、教堂窗内灯火温暖。星币五="匮乏与低谷"。记住它的希望处：教堂的窗漏出的光=身边的援手。' },
+{ id:5, n:'星币六', en:'Six of Pentacles', num:'6', el:'土', kU:['给予','分享','公平分配','资助','平衡'], kR:['亏欠','不均','索取','自私','债务压力'], m:'星币六象征财富与资源的公平流动：给予与接受。正位时，你可能乐善好施、助人，或正接受援助，收支与情义趋于平衡。它鼓励你慷慨也知恩。', r:'星币六逆位代表失衡——有人过度索取、有人被迫给予，或债务压力、分配不公。它提醒你：计算清楚付出与索取，让关系重回对等。', teach:'画面是天平主人在施舍、一人跪受。星币六="给予与接受的平衡"。记住它讲的是财富与情义都要"流动起来才健康"。' },
+{ id:6, n:'星币七', en:'Seven of Pentacles', num:'7', el:'土', kU:['评估','等待收成','审视进度','投入检视','耐心'], kR:['投入无果','操心','急于求成','回报不及','灰心'], m:'星币七是深耕后的回望与评估：停下看看投入的果实如何。正位时，前期努力已见端倪，需要评估方向、决定是否要继续/调整投入。它鼓励你耐心而清醒地检视。', r:'星币七逆位代表投入迟迟不见回报、感到灰心，或急于求成而忘了农时。它提醒你：生长需要时间，评估后坚持还是调整，别轻言放弃。', teach:'画面是农夫倚锄凝视藤上星币果。星币七="评估收成、检视投入"。记住它是"停下来看进度"的一张，重在对过程的清醒。' },
+{ id:7, n:'星币八', en:'Eight of Pentacles', num:'8', el:'土', kU:['精进','学徒','专注','熟练','踏实劳作'], kR:['敷衍','停滞','低效','眼高手低','倦怠'], m:'星币八象征专注投入、刻意练习、精益求精。正位时，你在打磨专业技能、踏实劳作，熟能生巧、成果日增。它鼓励你持续精进，把一件事做到极致。', r:'星币八逆位代表敷衍了事、技能停滞或眼高手低，可能因倦怠而松懈。它提醒你：用心打磨才有真本事，好高骛远不如脚踏实地重复。', teach:'画面是工匠专心雕刻星币如流水线作业。星币八="精进技艺的工匠精神"。记住它是"一分耕耘一分收获"最实在的一张。' },
+{ id:8, n:'星币九', en:'Nine of Pentacles', num:'9', el:'土', kU:['自足','精致','独立富足','享誉','从容'], kR:['依赖','虚荣','过度享乐','失去独立','空虚'], m:'星币九象征自力更生后的富足与从容，靠自己打拼换来的成果与品位。正位时，你经济独立、生活精致，享受自己的劳动果实。它鼓励你悦纳这份自足的成果。', r:'星币九逆位代表依赖他人、花销无度或为维持精致而耗尽，或外表富足内心空虚。它提醒你：真正的富足是自我独立与内在安宁。', teach:'画面是穿着华纺、垂手立于藤蔓佳果间的女子、身旁有鹰。星币九="自给自足的精致生活"。记住它是"靠自己赢来的丰足与从容"。' },
+{ id:9, n:'星币十', en:'Ten of Pentacles', num:'10', el:'土', kU:['传承','家族','积累','富足世家','长久'], kR:['家族纠纷','继承问题','衰败','根基动摇','目光短浅'], m:'星币十象征数代积累的财富、家族与长久基业。正位时，你拥有稳定丰厚的物质基础与归属感，可能涉及遗产、家族传承或事业根基。它鼓励你珍视并传承这份家底。', r:'星币十逆位代表家族/财产层面的纠纷、根基动摇或为财伤情，也可能只顾眼前利益而损及长远。它提醒你：金钱之外，家庭安宁与传承更珍贵。', teach:'画面是家族拱门下老者与孩童及成对信物。星币十="家族与世代积累"。记住它是"神的圆满落地到家族代代相传"的一张。' },
+{ id:10, n:'星币侍从', en:'Page of Pentacles', num:'侍从', el:'土', kU:['好学','务实','新规划','认真','蓄力'], kR:['懒散','空谈','计划搁浅','拖延','茫无目标'], m:'星币侍从是踏实好学的务实者，象征认真的学习、新的财务/事业规划正被用心栽培。正位时，你在打基础、存本金或学手艺，志向明确且肯下功夫。它鼓励你保持这份勤恳。', r:'星币侍从逆位代表懒散分心、计划搁浅，或空有想法不落地。它提醒你：把愿景具体成步骤，一点点积攒。', teach:'侍从=学生/新手。星币侍从="托币细看的土系少年"，象征务实的新起点。记住他是四侍从里最爱钻研"怎么做出来"的一个。' },
+{ id:11, n:'星币骑士', en:'Knight of Pentacles', num:'骑士', el:'土', kU:['稳健','可靠','勤勉','按部就班','务实推进'], kR:['停滞','老牛','固守','僵化','效率低下'], m:'星币骑士是稳健踏实、步步为营的执行者，象征用耐心与纪律推动目标。正位时，进展虽慢却扎实可控，你值得信赖、按计划推进。它鼓励你坚持这份可靠的同款。', r:'星币骑士逆位代表行动停滞、效率低下或过于守旧僵化。它提醒你：稳定不代表原地不动，适时提速与变通。', teach:'骑士=赶路行动者。星币骑士="牵马缓行的勤恳骑士"。记住四骑士他是最慢但最稳、最值得托付的那个。' },
+{ id:12, n:'星币王后', en:'Queen of Pentacles', num:'王后', el:'土', kU:['务实','温惠','持家','财务稳健','烟火气'], kR:['操劳过度','不容芳','过分操心','迷失自我','结构失衡'], m:'星币王后是务实而温暖的居家/经营角色，象征将生活照料得井井有条、兼顾事业与家庭。正位时，你务实可靠、懂得柴米与安顿，也代表有生活智慧的女性/自我。它鼓励你以安稳滋养身边人。', r:'星币王后逆位代表操劳过度、为照料他人而忽视自己，或因秩序过强而失衡。它提醒你：照顾好自己，别把生活扛成一个人的重担。', teach:'王后=成熟女性角色。星币王后="坐拥花园、抱兔与果"的女子，象征实务与温情并重。记住她是"把日子过踏实"的化身。' },
+{ id:13, n:'星币国王', en:'King of Pentacles', num:'国王', el:'土', kU:['成就','富足','稳健','事业有成','安全感'], kR:['守财顽固','物欲','贪恋','根基动摇','保守短视'], m:'星币国王象征凭借稳健经营换来的成功富足，是可靠的成功典范。正位时，你或一位掌权者事业有成、审慎务实、值得信任，物质基础坚固。它鼓励你以稳致远、乐善其中。', r:'星币国王逆位代表过度重利、守财顽固或贪恋物质，也可能根基出现裂痕。它提醒你：财富是手段不是目的，别让物欲遮蔽温度。', teach:'国王=成熟权威角色。星币国王="坐拥葡萄园的君王"，象征务实经营与成熟富足。他是四国王里最"落地生财"的一位。' }
+];
+</script>
+<script>
+/* 阿毛塔罗 - 核心逻辑 */
+(function(){
+'use strict';
+
+const ELEMENTS = { '火':'火 · 行动/热情', '水':'水 · 情感/直觉', '风':'风 · 思考/理性', '土':'土 · 物质/务实' };
+const SUITE = { wands:'权杖', cups:'圣杯', swords:'宝剑', pents:'星币' };
+const SUITE_CN = { wands:'权杖(火)', cups:'圣杯(水)', swords:'宝剑(风)', pents:'星币(土)' };
+
+let DECK = [];
+
+function buildDeck(){
+  DECK = [];
+  MAJOR.forEach(c=> DECK.push({ ...c, suite:'major', suitName:'大阿卡纳' }));
+  WANDS.forEach(c=> DECK.push({ ...c, suite:'wands', suitName:SUITE_CN.wands }));
+  CUPS.forEach(c=> DECK.push({ ...c, suite:'cups', suitName:SUITE_CN.cups }));
+  SWORDS.forEach(c=> DECK.push({ ...c, suite:'swords', suitName:SUITE_CN.swords }));
+  PENTACLES.forEach(c=> DECK.push({ ...c, suite:'pents', suitName:SUITE_CN.pents }));
+}
+
+const $ = (s)=> document.querySelector(s);
+const el = (t, cls, html)=> { const e=document.createElement(t); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; };
+
+function secureRandom(){
+  if(typeof crypto!=='undefined' && crypto.getRandomValues){
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return buf[0] / 4294967296;
+  }
+  return Math.random();
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(secureRandom()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function drawCards(count){
+  const arr = shuffle(DECK);
+  return arr.slice(0, count).map(c=>({ card:c, reversed: secureRandom()<0.35, position:0 }));
+}
+
+const state = { current:[], spreadCount:1, question:'' };
+
+function cardImagePath(card){
+  return 'images/'+card.suite+'/'+card.id+'.jpg';
+}
+
+function suitIcon(suite){
+  switch(suite){
+    case 'wands': return '<span class="ico">🌿</span>';
+    case 'cups': return '<span class="ico">🏺</span>';
+    case 'swords': return '<span class="ico">⚔️</span>';
+    case 'pents': return '<span class="ico">🪙</span>';
+    default: return '<span class="ico">✦</span>';
+  }
+}
+
+function cardBackHTML(){
+  return '<div class="cardface card-back"><div class="back-pattern">✦</div><div class="back-frame"></div></div>';
+}
+
+function cardFaceHTML(card, reversed, number){
+  const rev = reversed ? 'rev' : '';
+  const imgPath = cardImagePath(card);
+  const iconPart = '<div class="cf-iconbox">'+suitIcon(card.suite)+'<div class="cf-name">'+card.n+'</div><div class="cf-en">'+card.en+'</div></div>';
+  return '<div class="cardface card-front '+rev+'" data-i="'+number+'">'+
+    '<img class="cf-img" src="'+imgPath+'" alt="'+card.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'+
+    '<div class="cf-fallback">'+iconPart+'<div class="cf-numline"><span class="cf-num">'+card.num+'</span><span class="cf-suit">'+card.suitName+'</span><span class="cf-elm">'+card.el+'</span></div></div></div>';
+}
+
+function burstSparkle(){
+  const table = $('#table');
+  const rect = table.getBoundingClientRect();
+  for(let s=0;s<10;s++){
+    const sp = el('span','spark');
+    const x = Math.random()*rect.width;
+    const y = 20 + Math.random()*(rect.height-40);
+    sp.style.left = x + 'px';
+    sp.style.top = y + 'px';
+    sp.style.setProperty('--dx', (Math.random()*80-40)+'px');
+    sp.style.setProperty('--dy', (Math.random()*70-35)+'px');
+    sp.style.setProperty('--r', (Math.random()*360)+'deg');
+    sp.style.animationDelay = (Math.random()*0.1)+'s';
+    table.appendChild(sp);
+    setTimeout(()=> sp.remove(), 700);
+  }
+}
+
+function renderTable(dealtImmediately){
+  const table = $('#table');
+  table.innerHTML = '';
+  const deck = el('div','deck-pile');
+  deck.innerHTML = '<div class="deck-stack"><div class="db d1"></div><div class="db d2"></div><div class="db d3"></div><div class="db d4"></div><div class="db d5"></div><div class="db d6"></div><div class="db top">✦</div></div><div class="deck-glint"></div>';
+  if(!dealtImmediately) deck.classList.add('shuffling');
+  table.appendChild(deck);
+  state.current.forEach((item, i)=>{
+    const wrap = el('div', 'grid-cell cell-'+state.spreadCount+' dealing');
+    wrap.innerHTML = '<div class="card3d" data-i="'+i+'"><div class="flipper">'+cardBackHTML()+cardFaceHTML(item.card, item.reversed, i)+'</div><div class="pos-tag"></div></div>';
+    table.appendChild(wrap);
+  });
+  if(dealtImmediately){
+    table.querySelectorAll('.grid-cell').forEach(c=> c.classList.add('dealt'));
+    deck.style.opacity = '0';
+  }
+}
+
+function flipCard(cellIndex){
+  const flipper = document.querySelector('.card3d[data-i="'+cellIndex+'"] .flipper');
+  if(!flipper) return;
+  flipper.classList.add('flipped');
+}
+
+function flipAllSequential(){
+  const n = state.current.length;
+  const shuffleTime = 1400;
+  const dealGap = 220;
+  const table = $('#table');
+  const deck = table.querySelector('.deck-pile');
+  setTimeout(()=>{
+    table.querySelectorAll('.grid-cell').forEach((c,i)=>{
+      c.style.transitionDelay = i*dealGap/1000 + 's';
+      c.classList.add('dealt');
+    });
+    if(deck){ deck.style.opacity = '0'; }
+  }, shuffleTime);
+  const flipBase = shuffleTime + dealGap*n + 250;
+  const flipGap = state.spreadCount===1 ? 420 : 550;
+  state.current.forEach((_, i)=>{
+    setTimeout(()=> burstSparkle(), flipBase - 180 + i*flipGap);
+    setTimeout(()=> flipCard(i), flipBase + i*flipGap);
+  });
+  const revealDelay = flipBase + n*flipGap + 450;
+  setTimeout(()=> renderResult(), revealDelay);
+}
+
+function threePosName(i){ return ['过去','现在','未来'][i] || ''; }
+
+function renderCardDetail(card, reversed, posName, withButt){
+  const wrap = el('div','detail-card');
+  const kw = reversed ? card.kR : card.kU;
+  const detail = reversed ? card.r : card.m;
+  const iconHtml = suitIcon(card.suite);
+  wrap.innerHTML = '<div class="dc-head"><div class="dc-thumb">'+
+    '<img class="dc-img" src="images/'+card.suite+'/'+card.id+'.jpg" alt="'+card.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'+
+    '<div class="dc-fb" style="display:none"><span class="dc-fb-icon">'+iconHtml+'</span></div></div>'+
+    '<div class="dc-title">'+(posName?'<div class="dc-pos">'+posName+'</div>':'')+
+    '<div class="dc-name">'+card.n+' <span class="dc-en">'+card.en+'</span></div>'+
+    '<div class="dc-meta">'+(SUITE[card.suite]||'大阿卡纳')+' · '+card.num+' · 元素'+card.el+'</div></div>'+
+    '<div class="dc-orient'+(reversed?' rev':'')+'">'+(reversed?'逆位':'正位')+'</div></div>'+
+    '<div class="dc-kw"><div class="kw-row">'+kw.map(k=>'<span class="chip">'+k+'</span>').join('')+'</div></div>'+
+    '<div class="dc-mean"><b>'+(reversed?'逆位':'正位')+'牌意　</b>'+detail+'</div>'+
+    '<div class="dc-learn">📗 <b>学习引导</b>　'+card.teach+'</div>'+
+    (card.sym ? '<div class="dc-sym">🔍 <b>牌面象征</b>　'+card.sym+'</div>' : '');
+  if(withButt){
+    const more = el('div','dc-open','继续学习这张牌 »');
+    more.onclick = ()=> openModal(card, reversed);
+    wrap.appendChild(more);
+  }
+  return wrap;
+}
+
+function renderResult(){
+  const res = $('#result');
+  res.innerHTML = '';
+  if(!state.current.length) return;
+  const question = state.question || '今日对内心的指引';
+  res.appendChild(el('div','res-question', '✦ '+question+' ✦'));
+  state.current.forEach((item, i)=>{
+    const posName = state.spreadCount===3 ? threePosName(i) : '';
+    const block = renderCardDetail(item.card, item.reversed, posName, true);
+    res.appendChild(block);
+  });
+  const sum = el('div','summary');
+  if(state.spreadCount===1){
+    const { card, reversed } = state.current[0];
+    const or = reversed?'逆位':'正位';
+    sum.innerHTML = '<div class="sum-head">⊹ 一句话总结 ⊹</div><div class="sum-text">"'+
+      card.n+or+'"提醒你：'+(reversed?card.r.slice(0,40):card.m.slice(0,40))+'……<br>把它当作今天的一个<b>提醒或角度</b>，不必全信，用它来观照自己的处境。</div>';
+  } else {
+    const names = state.current.map((it,i)=>threePosName(i)+'「'+it.card.n+(it.reversed?'逆':'')+'」');
+    sum.innerHTML = '<div class="sum-head">⊹ 三牌故事 ⊹</div><div class="sum-text">'+names.join(' → ')+'<br>过去留下了痕迹，现在是关键，未来由你的选择书写。试着用每张牌的<b>关键词</b>串成一句只属于你的话。</div>';
+  }
+  res.appendChild(sum);
+  const box = el('div','learn-cta');
+  box.innerHTML = '<div class="lc-title">想真正学会塔罗？</div><div class="lc-sub">① 把每张牌的 <b>3 个关键词</b>当"记忆锚点"，别死记长文。<br>② 看<b>学习引导</b>里的内核故事，理解它是谁。<br>③ 去"牌库自学"逐张浏览，或去"自测"检验自己记下没。<br>④ 每天抽一张牌当作今日提醒，练出牌感。</div><div class="lc-btns"><button class="ghost" onclick="window.showTab(\'learn\')">去牌库看这张牌</button><button class="ghost" onclick="window.showTab(\'quiz\')">去自测一下</button></div>';
+  res.appendChild(box);
+  res.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function openModal(card, reversed){
+  const mc = $('#modalContent');
+  const block = renderCardDetail(card, reversed, '', false);
+  block.classList.add('in-modal');
+  mc.innerHTML = '';
+  mc.appendChild(block);
+  const ex = el('div','modal-ex');
+  ex.innerHTML = '<div class="ex-title">✎ 自我练习</div><div class="ex-text">① 不看这里，回忆这张牌 <b>3 个正位关键词</b>。<br>② 若抽到逆位，问：这个能量是"过度"还是"受阻"？<br>③ 用一句话造句："此刻我在生活中，哪里像'+card.n+'？"<br>④ 收藏这张牌，过几天回来看，遗忘会替你标记重点。</div>';
+  mc.appendChild(ex);
+  $('#modal').classList.add('open');
+  $('#modalClose').onclick = ()=> { $('#modal').classList.remove('open'); };
+  mc.querySelector('.dc-open')?.remove();
+}
+window.openModal = openModal;
+
+$('#drawBtn').onclick = function(){
+  state.question = $('#questionInput').value.trim();
+  const count = state.spreadCount;
+  state.current = drawCards(count);
+  $('#result').innerHTML = '';
+  renderTable();
+  flipAllSequential();
+};
+
+document.querySelectorAll('.spread').forEach(btn=>{
+  btn.onclick = function(){
+    document.querySelectorAll('.spread').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    state.spreadCount = parseInt(this.dataset.count, 10);
+    $('#result').innerHTML = '';
+    renderTable(true);
+  };
+});
+
+window.showTab = function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id===name));
+  window.scrollTo({ top:0, behavior:'smooth' });
+  if(name==='learn') renderCardGrid();
+  if(name==='quiz') resetQuiz();
+};
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = ()=> window.showTab(t.dataset.tab);
+});
+
+const learnState = { filter:'all', kw:'' };
+
+function renderCardGrid(){
+  const grid = $('#cardGrid');
+  grid.innerHTML = '';
+  let list = DECK.slice();
+  if(learnState.filter==='major') list = list.filter(c=>c.suite==='major');
+  if(learnState.filter==='minor') list = list.filter(c=>c.suite!=='major');
+  if(learnState.kw){
+    const kw = learnState.kw.toLowerCase();
+    list = list.filter(c=> c.n.includes(kw) || c.en.toLowerCase().includes(kw) || c.kU.join(' ').toLowerCase().includes(kw) || c.kR.join(' ').toLowerCase().includes(kw));
+  }
+  $('#deckCount').textContent = list.length;
+  list.forEach(card=>{
+    const cell = el('div','grid-card');
+    cell.innerHTML = '<div class="gc-img-wrap"><img class="gc-img" src="images/'+card.suite+'/'+card.id+'.jpg" alt="'+card.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="gc-fallback" style="display:none"><span class="gc-fb-icon">'+suitIcon(card.suite)+'</span></div></div><div class="gc-name">'+card.n+'</div><div class="gc-sub">'+(SUITE[card.suite]||'大阿卡纳')+' · '+card.el+'元素</div>';
+    cell.onclick = ()=> openModal(card, false);
+    grid.appendChild(cell);
+  });
+}
+
+document.querySelectorAll('.bfilter').forEach(b=>{
+  b.onclick = function(){
+    document.querySelectorAll('.bfilter').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+    learnState.filter = this.dataset.filter;
+    renderCardGrid();
+  };
+});
+$('#learnSearch').addEventListener('input', function(){
+  learnState.kw = this.value.trim();
+  renderCardGrid();
+});
+
+let quizCard = null;
+
+function resetQuiz(){
+  $('#quizArea').innerHTML = '';
+  $('#quizCardBack').style.display='flex';
+  quizCard = null;
+}
+
+$('#quizDraw').onclick = function(){
+  quizCard = DECK[Math.floor(Math.random()*DECK.length)];
+  const rev = Math.random()<0.5;
+  $('#quizCardBack').style.display='none';
+  const area = $('#quizArea');
+  area.innerHTML = '';
+  const q = el('div','quiz-card');
+  q.innerHTML = '<div class="qz-img-wrap"><img class="qz-img" src="images/'+quizCard.suite+'/'+quizCard.id+'.jpg" alt="'+quizCard.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="qz-fb" style="display:none"><span class="qz-fb-icon">✦</span></div></div><div class="qz-name">'+quizCard.n+' <span>'+quizCard.en+'</span></div><div class="qz-meta">'+(SUITE[quizCard.suite]||'大阿卡纳')+' · '+quizCard.num+' · 元素'+quizCard.el+' · '+(rev?'逆位':'正位')+'</div><div class="qz-ask">先凭记忆回想这张牌的<b>关键词</b>与<b>一句话牌意</b>，再看看对照。</div><div class="qz-mem">你来写：<textarea id="qzCapture" rows="2" placeholder="想到什么都行，想不出来就直接看答案"></textarea></div><button id="qzShow" class="draw-btn small">查看对照答案</button><div id="qzAns" style="display:none"></div>';
+  area.appendChild(q);
+  $('#'+'qzShow').onclick = function(){
+    const ans = $('#qzAns');
+    ans.style.display='block';
+    const detail = renderCardDetail(quizCard, rev, '', false);
+    detail.querySelector('.dc-open')?.remove();
+    ans.innerHTML = '';
+    ans.appendChild(detail);
+    this.style.display='none';
+  };
+};
+
+function init(){
+  buildDeck();
+  $('#deckCount').textContent = DECK.length;
+  state.current = drawCards(1);
+  renderTable();
+  $('#table').innerHTML='';
+  const hint = el('div','table-hint','点下方按钮，静心默念你的问题，然后抽牌');
+  $('#table').appendChild(hint);
+}
+
+init();
+
+})();
+</script>
+</body>
+</html>

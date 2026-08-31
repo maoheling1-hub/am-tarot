@@ -1,0 +1,8 @@
+{
+  "name": "阿毛塔罗 - 抽牌自学",
+  "short_name": "阿毛塔罗",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1430",
+  "theme_color": "#1a1430"
+}

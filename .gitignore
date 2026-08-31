@@ -1,0 +1,6 @@
+# 阿毛塔罗 - Git忽略规则
+*.zip
+*.ps1
+node_modules/
+.DS_Store
+Thumbs.db
