@@ -1,0 +1,440 @@
+/* ============ 阿毛塔罗 | Editorial Swiss Revival ============ */
+:root{
+  /* OKLCH color scale with subtle golden undertone in neutrals */
+  --bg0: oklch(10% 0.04 280);
+  --bg1: oklch(18% 0.06 280);
+  --bg2: oklch(25% 0.07 280);
+  --gold: oklch(78% 0.12 75);
+  --gold-soft: oklch(88% 0.08 75);
+  --gold-deep: oklch(65% 0.11 75);
+  --cream: oklch(92% 0.02 75);
+  --text: oklch(94% 0.02 280);
+  --text-dim: oklch(75% 0.04 280);
+  --card: oklch(24% 0.08 280);
+  --card-border: oklch(35% 0.06 280);
+  --rev: oklch(82% 0.03 260);
+  --red: oklch(72% 0.14 25);
+  /* Typography scale - perfect fourth */
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-lg: 1.333rem;
+  --fs-xl: 1.777rem;
+  /* Spacing rhythm based on 1.5 base line-height */
+  --sp-1: 0.5rem;
+  --sp-2: 1rem;
+  --sp-3: 1.5rem;
+  --sp-4: 2rem;
+  --sp-6: 3rem;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  /* Editorial Swiss: serif for display, sans for body, mono for metadata */
+  font-family: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+  background:linear-gradient(160deg,var(--bg0) 0%,var(--bg1) 45%,var(--bg2) 100%);
+  color:var(--text);
+  min-height:100vh;
+  padding-bottom:var(--sp-6);
+  line-height:1.6; /* Increased for dark mode readability */
+}
+/* Subtle starfield background - restrained, not distracting */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(230,194,122,.3), transparent),
+    radial-gradient(1px 1px at 80% 20%, rgba(230,194,122,.25), transparent),
+    radial-gradient(1px 1px at 50% 80%, rgba(230,194,122,.18), transparent);
+  background-size:180px 180px; opacity:.5;
+}
+/* Swiss section numbering - § 01 style marker */
+.section-mark{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size:var(--fs-xs);
+  color:var(--gold);
+  letter-spacing:0.2em;
+  opacity:.8;
+  margin-bottom:var(--sp-1);
+  display:block;
+}
+
+/* ---------- 顶部 · Swiss editorial ---------- */
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:oklch(10% 0.04 280 / .85);backdrop-filter:blur(12px);
+  border-bottom:1px solid oklch(35% 0.06 280 / .5);
+}
+.brand{display:flex;align-items:baseline;gap:var(--sp-2);padding:var(--sp-2) var(--sp-2) var(--sp-1);}
+.brand-icon{font-size:var(--fs-lg);color:var(--gold);}
+.brand-name{font-size:var(--fs-lg);font-weight:700;letter-spacing:2px;color:var(--cream);}
+.brand-sub{font-size:var(--fs-xs);color:var(--text-dim);display:block;margin-top:2px;letter-spacing:1px;}
+
+/* Swiss-style tabs: underline indicator, no pill background */
+.tabs{display:flex;padding:0 var(--sp-2);gap:var(--sp-3);}
+.tab{
+  flex:none;background:none;border:none;color:var(--text-dim);
+  font-size:var(--fs-sm);padding:var(--sp-1) 0;cursor:pointer;letter-spacing:1px;
+  position:relative;transition:color .15s;
+}
+.tab::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--gold);transform:scaleX(0);transition:transform .2s;
+}
+.tab.active{color:var(--gold);font-weight:600;}
+.tab.active::after{transform:scaleX(1);}
+.tab:not(.active):hover{color:var(--cream);}
+
+/* ---------- 面板 ---------- */
+main{position:relative;z-index:1;padding:var(--sp-3) var(--sp-2);max-width:60ch;margin:0 auto;}
+.panel{display:none;animation:fade .35s;}
+.panel.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* ---------- 问题输入 ---------- */
+.focus-card{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:var(--sp-3);margin-bottom:var(--sp-3);}
+.focus-label{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size:var(--fs-xs);color:var(--gold);letter-spacing:0.2em;display:block;margin-bottom:var(--sp-1);text-transform:uppercase;
+}
+.question-input{
+  width:100%;background:var(--bg0);border:1px solid var(--card-border);
+  border-radius:4px;color:var(--text);font-size:var(--fs-base);padding:.75rem .875rem;outline:none;
+  transition:border-color .15s;
+}
+.question-input::placeholder{color:var(--text-dim);}
+.question-input:focus{border-color:var(--gold);}
+
+/* ---------- 牌阵选择 ---------- */
+.spread-row{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-3);}
+.spread{
+  flex:1;background:var(--card);border:1px solid var(--card-border);color:var(--text-dim);
+  border-radius:4px;padding:var(--sp-2);font-size:var(--fs-sm);cursor:pointer;
+  transition:all .15s;position:relative;
+}
+/* Swiss: active has gold border and gold text, subtle background */
+.spread.active{border-color:var(--gold);color:var(--gold);background:oklch(24% 0.08 280);}
+.spread:not(.active):hover{border-color:oklch(45% 0.06 280);color:var(--cream);}
+
+/* ---------- 牌桌 ---------- */
+.table{
+  position:relative;
+  min-height:200px;display:flex;align-items:center;justify-content:center;
+  gap:var(--sp-2);padding:var(--sp-3) 0;perspective:1200px;
+}
+.table-hint{color:var(--text-dim);font-size:var(--fs-sm);text-align:center;line-height:1.8;font-style:italic;}
+.grid-cell{flex:1;max-width:150px;display:flex;justify-content:center;transition:transform .5s cubic-bezier(.34,1.4,.4,1),opacity .4s;}
+.cell-1{max-width:150px;}
+.cell-3{max-width:105px;}
+
+/* 中央牌叠：多层牌背叠成，更有质感 - Swiss geometric */
+.deck-pile{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:74px;height:104px;z-index:1;transition:opacity .4s,transform .4s;
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,.55));
+}
+.deck-stack{position:absolute;inset:0;transform-style:preserve-3d;}
+.db{
+  position:absolute;left:0;top:0;width:100%;height:100%;border-radius:8px;
+  background:linear-gradient(145deg,var(--bg2),var(--bg1));border:1px solid oklch(78% 0.12 75 / .35);
+  box-shadow:0 2px 6px rgba(0,0,0,.45);
+}
+.db.d1{transform:translate(-6px,7px) rotate(-2deg);}
+.db.d2{transform:translate(5px,5px) rotate(1.4deg);}
+.db.d3{transform:translate(-4px,3px) rotate(-.8deg);}
+.db.d4{transform:translate(4px,2px) rotate(.8deg);}
+.db.d5{transform:translate(-2px,1px) rotate(-.3deg);}
+.db.d6{transform:translate(2px,.5px) rotate(.3deg);}
+.db.top{
+  display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:24px;
+  background:linear-gradient(145deg,var(--bg2),var(--bg1));
+  border:1px solid var(--gold-deep);
+}
+/* 牌叠内部透视背纹 - Swiss geometric */
+.db::before{content:"";position:absolute;inset:6px;border:1px solid oklch(78% 0.12 75 / .18);border-radius:5px;
+  background:repeating-linear-gradient(45deg,transparent 0 5px,oklch(78% 0.12 75 / .04) 5px 10px);}
+
+/* 洗牌：牌叠整体riffle抖动 + 呼吸金芒 */
+.deck-pile.shuffling{animation:deckPulse 1.4s ease-in-out infinite;}
+.deck-pile.shuffling .deck-stack{animation:riffle .3s ease-in-out infinite;}
+.deck-pile.shuffling .db.top{animation:topCard .3s ease-in-out infinite;}
+@keyframes riffle{
+  0%{transform:translateY(0) rotate(0) scale(1);}
+  30%{transform:translateY(-7px) rotate(-4deg) scale(1.05,.9);}
+  60%{transform:translateY(3px) rotate(5deg) scale(.94,1.06);}
+  100%{transform:translateY(0) rotate(0) scale(1);}
+}
+@keyframes topCard{
+  0%{transform:translate(0,0) rotate(0);}
+  50%{transform:translate(-9px,-3px) rotate(-14deg);}
+  100%{transform:translate(0,0) rotate(0);}
+}
+@keyframes deckPulse{
+  0%,100%{filter:drop-shadow(0 0 12px rgba(230,194,122,.25)) drop-shadow(0 8px 16px rgba(0,0,0,.55));}
+  50%{filter:drop-shadow(0 0 30px rgba(230,194,122,.55)) drop-shadow(0 8px 16px rgba(0,0,0,.55));}
+}
+
+/* 一束光自上而下扫过牌叠 */
+.deck-glint{
+  position:absolute;left:-12%;width:124%;height:34%;
+  top:-40%;z-index:3;pointer-events:none;opacity:0;
+  background:linear-gradient(180deg,transparent,rgba(255,235,170,.5),rgba(255,245,210,.9),rgba(255,235,170,.5),transparent);
+  filter:blur(5px);
+}
+.deck-pile.shuffling .deck-glint{animation:glint 1.5s linear infinite;}
+@keyframes glint{
+  0%{top:-40%;opacity:0;}
+  8%{opacity:1;}
+  70%{opacity:1;}
+  100%{top:140%;opacity:0;}
+}
+
+/* 叠在中央牌堆上：初始全部压在牌堆位置 */
+.grid-cell.dealing{
+  opacity:0;transform:translate(0,0) scale(.4) rotate(10deg);z-index:2;
+}
+.grid-cell.dealt{
+  opacity:1;transform:none;z-index:auto;
+}
+.cell-1.dealt{transition-delay:0s;}
+.cell-3.dealt:nth-child(1){transition-delay:0s;}
+.cell-3.dealt:nth-child(2){transition-delay:.22s;}
+.cell-3.dealt:nth-child(3){transition-delay:.44s;}
+
+/* 翻牌瞬间的光点 */
+.spark{
+  position:absolute;width:7px;height:7px;border-radius:50%;
+  background:radial-gradient(circle,#ffe9a8,var(--gold-d));
+  box-shadow:0 0 8px var(--gold);pointer-events:none;z-index:5;
+  opacity:0;animation:sparkFly .6s ease-out forwards;
+}
+@keyframes sparkFly{
+  0%{opacity:1;transform:translate(0,0) scale(1);}
+  100%{opacity:0;transform:translate(var(--dx,30px),var(--dy,-20px)) rotate(var(--r,0deg)) scale(.2);}
+}
+
+/* 3D 翻转 */
+.card3d{width:100%;max-width:150px;height:220px;position:relative;transform-style:preserve-3d;}
+.cell-3 .card3d{height:180px;}
+.flipper{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,.2,.2,1);}
+.flipper.flipped{transform:rotateY(180deg);}
+.cardface{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:8px;display:flex;flex-direction:column;
+}
+/* Swiss card back: clean geometric with gold border */
+.card-back{
+  background:linear-gradient(145deg,var(--bg2),var(--bg1));
+  border:1px solid var(--gold-deep);
+  box-shadow:0 4px 16px rgba(0,0,0,.5);
+  align-items:center;justify-content:center;
+}
+.back-frame{position:absolute;inset:7px;border:1px solid oklch(78% 0.12 75 / .4);border-radius:5px;
+  background:repeating-linear-gradient(45deg,transparent 0 6px,oklch(78% 0.12 75 / .06) 6px 12px);}
+.back-pattern{
+  font-size:38px;color:var(--gold);opacity:.7;
+  text-shadow:0 0 10px oklch(78% 0.12 75 / .3);
+  animation:backShine 3s ease-in-out infinite;
+}
+@keyframes backShine{
+  0%,100%{opacity:.6;text-shadow:0 0 6px oklch(78% 0.12 75 / .2);}
+  50%{opacity:.9;text-shadow:0 0 18px oklch(78% 0.12 75 / .45);}
+}
+.card-front{
+  transform:rotateY(180deg);
+  background:linear-gradient(160deg,var(--card),var(--bg1));
+  border:1px solid var(--card-border);
+  overflow:hidden;
+  position:relative;
+  border-radius:8px;
+}
+/* 真实塔罗图片：铺满整个牌面 */
+.cf-img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  display:block;border-radius:7px;
+}
+/* 图片加载失败的文字回退层（默认隐藏，图片加载失败时才显示） */
+.cf-fallback{
+  display:none;position:absolute;inset:0;border-radius:7px;z-index:1;
+  background:linear-gradient(160deg,var(--card),var(--bg1));
+  padding:10px;flex-direction:column;
+}
+.card-front.rev{filter:saturate(.85) brightness(.9);border-color:var(--rev);}
+.card-front.rev .cf-fallback .cf-icon{filter:hue-rotate(140deg);opacity:.8;}
+.card-front.rev .cf-img{filter:hue-rotate(140deg) saturate(.85) brightness(.9);}
+.cf-top{display:flex;justify-content:space-between;font-size:11px;color:var(--gold);}
+.cf-bottom{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--text-dim);}
+.cf-numline{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--text-dim);padding-top:6px;border-top:1px solid oklch(78% 0.12 75 / .18);}
+.cf-num{color:var(--gold);font-weight:700;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;}
+.cf-iconbox{text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+.cf-icon{font-size:38px;color:var(--gold);}
+.cf-cn{color:var(--cream);}
+.cf-name{font-size:17px;font-weight:700;letter-spacing:1px;color:var(--cream);}
+.cf-en{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;}
+.ico{font-style:normal;}
+.pos-tag{position:absolute;top:-14px;left:0;right:0;text-align:center;font-size:11px;color:var(--gold);}
+
+/* ---------- 抽牌按钮 · Swiss: clean geometric ---------- */
+.draw-zone{text-align:center;margin:var(--sp-3) 0 var(--sp-1);}
+.draw-btn{
+  background:var(--gold);color:var(--bg0);border:none;
+  border-radius:4px;padding:var(--sp-2) var(--sp-4);
+  font-size:var(--fs-base);font-weight:700;letter-spacing:2px;cursor:pointer;
+  transition:opacity .12s,transform .12s;
+}
+.draw-btn:hover{opacity:.9;}
+.draw-btn:active{transform:scale(.97);}
+.draw-btn.small{padding:var(--sp-1) var(--sp-2);font-size:var(--fs-sm);}
+
+/* ---------- 结果 ---------- */
+.result{margin-top:var(--sp-3);animation:rise .5s;}
+@keyframes rise{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+.res-question{text-align:center;color:var(--gold);font-size:var(--fs-base);margin-bottom:var(--sp-2);letter-spacing:1px;font-style:italic;}
+.detail-card{
+  background:var(--card);border:1px solid var(--card-border);border-radius:8px;
+  padding:var(--sp-3);margin-bottom:var(--sp-2);
+}
+.dc-head{display:flex;align-items:flex-start;gap:var(--sp-2);margin-bottom:var(--sp-2);}
+.dc-thumb{flex:none;width:58px;height:88px;border-radius:6px;overflow:hidden;position:relative;
+  background:linear-gradient(160deg,var(--card),var(--bg1));border:1px solid var(--card-border);}
+.dc-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:2;}
+.dc-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1;background:linear-gradient(160deg,var(--card),var(--bg1));}
+.dc-fb-icon{font-size:22px;color:var(--gold);}
+.dc-title{flex:1;}
+.dc-pos{font-size:var(--fs-xs);color:var(--gold);letter-spacing:1px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;text-transform:uppercase;}
+.dc-name{font-size:var(--fs-lg);font-weight:700;color:var(--cream);}
+.dc-en{font-size:var(--fs-xs);color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;}
+.dc-meta{font-size:var(--fs-xs);color:var(--text-dim);margin-top:2px;}
+
+/* Swiss: orient tag as clean inline label, not pill */
+.dc-orient{
+  font-size:var(--fs-xs);color:#79c9a8;font-weight:700;margin-top:4px;display:inline-block;letter-spacing:1px;
+}
+.dc-orient.rev{color:#c88;}
+.dc-kw{margin-bottom:var(--sp-2);}
+.kw-row{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{background:oklch(78% 0.12 75 / .1);color:var(--gold);border:1px solid oklch(78% 0.12 75 / .2);
+  padding:2px 10px;border-radius:3px;font-size:var(--fs-sm);}
+.dc-mean{font-size:var(--fs-sm);line-height:1.8;color:var(--text);margin-bottom:var(--sp-2);}
+.dc-mean b{color:var(--gold);}
+.dc-learn{
+  font-size:var(--fs-sm);line-height:1.7;color:var(--text-dim);background:var(--bg0);
+  border-left:3px solid var(--gold-deep);padding:var(--sp-2);border-radius:0 4px 4px 0;margin-bottom:var(--sp-1);
+}
+.dc-learn b{color:var(--gold);}
+.dc-sym{font-size:var(--fs-sm);line-height:1.7;color:var(--text-dim);}
+.dc-sym b{color:var(--gold-deep);}
+.dc-open{margin-top:var(--sp-2);color:var(--gold);font-size:var(--fs-sm);text-align:right;cursor:pointer;letter-spacing:1px;}
+
+/* 综合结语 - Swiss: clean bordered card */
+.summary{background:var(--card);border:1px solid oklch(78% 0.12 75 / .3);border-radius:8px;padding:var(--sp-3);margin-bottom:var(--sp-2);}
+.sum-head{color:var(--gold);font-size:var(--fs-sm);font-weight:700;margin-bottom:var(--sp-2);text-align:center;letter-spacing:2px;text-transform:uppercase;}
+.sum-text{font-size:var(--fs-sm);line-height:1.8;color:var(--text);}
+.sum-text b{color:var(--gold);}
+
+/* 学牌引导 */
+.learn-cta{background:var(--bg0);border:1px dashed var(--gold-deep);border-radius:8px;padding:var(--sp-3);}
+.lc-title{color:var(--gold);font-size:var(--fs-base);font-weight:700;margin-bottom:var(--sp-1);}
+.lc-sub{font-size:var(--fs-sm);line-height:1.9;color:var(--text-dim);margin-bottom:var(--sp-2);}
+.lc-sub b{color:var(--cream);}
+.lc-btns{display:flex;gap:var(--sp-2);}
+.ghost{flex:1;background:none;border:1px solid var(--gold-deep);color:var(--gold);
+  border-radius:4px;padding:var(--sp-1);font-size:var(--fs-sm);cursor:pointer;transition:background .15s;}
+.ghost:active{background:oklch(78% 0.12 75 / .12);}
+
+/* ---------- 自定义滚动条 - Swiss: minimal ---------- */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:oklch(78% 0.12 75 / .25);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:oklch(78% 0.12 75 / .4);}
+
+/* ---------- 牌库 - Swiss: clean grid ---------- */
+.learn-header{padding:var(--sp-1) 0 var(--sp-2);display:flex;align-items:center;justify-content:space-between;}
+.learn-header h3{color:var(--gold);font-size:var(--fs-base);margin:0;letter-spacing:1px;}
+.deck-badge{
+  font-size:var(--fs-xs);color:var(--text-dim);background:oklch(78% 0.12 75 / .1);
+  border:1px solid oklch(78% 0.12 75 / .15);padding:3px 10px;border-radius:20px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+.search-input{width:100%;background:var(--bg0);border:1px solid var(--card-border);
+  border-radius:4px;color:var(--text);padding:var(--sp-1) var(--sp-2);font-size:var(--fs-sm);outline:none;
+  transition:border-color .15s;
+}
+.search-input:focus{border-color:var(--gold);}
+.browse-filters{display:flex;gap:var(--sp-2);margin:var(--sp-2) 0;flex-wrap:wrap;}
+.bfilter{background:var(--card);border:1px solid var(--card-border);color:var(--text-dim);
+  border-radius:4px;padding:4px 12px;font-size:var(--fs-sm);cursor:pointer;transition:all .15s;}
+.bfilter.active{border-color:var(--gold);color:var(--gold);background:var(--card);}
+.bfilter:not(.active):hover{border-color:oklch(45% 0.06 280);color:var(--cream);}
+
+.card-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+@media (min-width: 600px){ .card-grid{grid-template-columns:repeat(4,1fr); } }
+@media (min-width: 800px){ .card-grid{grid-template-columns:repeat(5,1fr); } }
+@media (max-width: 400px){ .card-grid{grid-template-columns:repeat(3,1fr); } }
+
+.grid-card{background:var(--card);border:1px solid var(--card-border);border-radius:6px;
+  padding:6px 4px 8px;text-align:center;cursor:pointer;transition:border-color .15s,transform .15s;}
+.grid-card:active{transform:scale(.96);}
+.grid-card:hover{border-color:oklch(45% 0.06 280);}
+.gc-img-wrap{position:relative;aspect-ratio:3/5;border-radius:4px;overflow:hidden;
+  background:linear-gradient(160deg,var(--card),var(--bg1));border:1px solid var(--card-border);margin-bottom:4px;}
+.gc-img{width:100%;height:100%;object-fit:cover;display:block;}
+.gc-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--card),var(--bg1));}
+.gc-fb-icon{font-size:22px;color:var(--gold);}
+.gc-name{font-size:11px;font-weight:600;color:var(--cream);line-height:1.3;}
+.gc-sub{display:none;}
+
+/* ---------- 自测 ---------- */
+.panel-title{color:var(--gold);font-size:var(--fs-lg);letter-spacing:2px;text-align:center;margin:var(--sp-1) 0 var(--sp-1);}
+.panel-desc{color:var(--text-dim);font-size:var(--fs-sm);text-align:center;line-height:1.7;margin:0 0 var(--sp-3);font-style:italic;}
+.quiz-stage{text-align:center;}
+.quiz-cardback{
+  width:120px;height:170px;margin:0 auto var(--sp-3);border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,var(--bg2),var(--bg1));border:1px solid var(--gold-deep);font-size:44px;color:var(--gold);
+}
+.quiz-card{background:var(--card);border:1px solid var(--card-border);border-radius:8px;padding:var(--sp-3);margin-top:var(--sp-3);text-align:left;}
+.qz-name{font-size:var(--fs-lg);font-weight:700;color:var(--cream);}
+.qz-name span{font-size:var(--fs-xs);color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;}
+.qz-meta{font-size:var(--fs-sm);color:var(--text-dim);margin-top:4px;margin-bottom:var(--sp-2);}
+.qz-img-wrap{margin:0 auto var(--sp-3);width:140px;height:210px;border-radius:8px;overflow:hidden;position:relative;
+  background:linear-gradient(160deg,var(--card),var(--bg1));border:1px solid var(--card-border);}
+.qz-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.qz-fb{display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--card),var(--bg1));}
+.qz-fb-icon{font-size:48px;color:var(--gold);}
+.qz-ask{font-size:var(--fs-sm);line-height:1.8;color:var(--text);margin-bottom:var(--sp-2);}
+.qz-ask b{color:var(--gold);}
+.qz-mem{font-size:var(--fs-sm);color:var(--text-dim);margin-bottom:var(--sp-2);}
+textarea{width:100%;background:var(--bg0);border:1px solid var(--card-border);border-radius:4px;
+  color:var(--text);padding:var(--sp-1) var(--sp-2);font-size:var(--fs-sm);resize:none;outline:none;font-family:inherit;
+  transition:border-color .15s;
+}
+textarea:focus{border-color:var(--gold);}
+
+/* ---------- 入门指引 ---------- */
+.guide-body{max-width:60ch;margin:0 auto;}
+.guide-steps{margin-bottom:var(--sp-3);}
+.gstep{background:var(--card);border:1px solid var(--card-border);border-radius:8px;
+  padding:var(--sp-2) var(--sp-3);margin-bottom:var(--sp-2);font-size:var(--fs-sm);line-height:1.8;color:var(--text);}
+.gstep b{color:var(--gold);}
+.tips{background:var(--bg0);border:1px solid var(--card-border);border-radius:8px;padding:var(--sp-2) var(--sp-3);}
+.tipline{font-size:var(--fs-sm);line-height:1.8;color:var(--text-dim);margin-bottom:var(--sp-1);}
+.tipline b{color:var(--gold);}
+
+/* ---------- 弹层 - Swiss: clean bottom sheet ---------- */
+.modal{position:fixed;inset:0;background:oklch(8% 0.04 280 / .8);backdrop-filter:blur(6px);
+  display:none;align-items:flex-end;justify-content:center;z-index:50;animation:fade .2s;}
+.modal.open{display:flex;}
+.modal-box{background:var(--bg1);width:100%;max-width:60ch;max-height:90vh;overflow-y:auto;
+  border-radius:12px 12px 0 0;padding:var(--sp-4) var(--sp-3) var(--sp-6);position:relative;
+  box-shadow:0 -6px 30px rgba(0,0,0,.5);}
+@keyframes slideUp{from{transform:translateY(30px);}to{transform:none;}}
+.modal.open .modal-box{animation:slideUp .3s;}
+.modal-close{position:absolute;top:8px;right:var(--sp-3);background:none;border:none;color:var(--gold);
+  font-size:var(--fs-lg);cursor:pointer;line-height:1;padding:4px 8px;}
+.detail-card.in-modal{border:none;background:none;padding:0;}
+.modal-ex{
+  margin-top:var(--sp-3);background:var(--bg0);border:1px dashed var(--gold-deep);
+  border-radius:8px;padding:var(--sp-3);
+}
+.ex-title{color:var(--gold);font-size:var(--fs-base);font-weight:700;margin-bottom:var(--sp-2);}
+.ex-text{font-size:var(--fs-sm);line-height:1.9;color:var(--text-dim);}
+.ex-text b{color:var(--cream);}
