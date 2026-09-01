@@ -1,7 +1,8 @@
-/* 阿毛塔罗 - Service Worker v3
+/* 阿毛塔罗 - Service Worker v4
  * 预缓存全部 78 张牌图 + 核心资源，安装失败单条不阻断
+ * 关键：app shell (HTML) 采用 network-first，在线始终取最新版本，离线回退缓存
  */
-const CACHE = 'am-tarot-v5';
+const CACHE = 'am-tarot-v6';
 
 /* 牌组结构：suite -> 张数 */
 const DECK = {
@@ -20,6 +21,9 @@ const CORE = [
   './pwa-icon-192.png',
   './pwa-icon-512.png'
 ].concat(IMAGES);
+
+/* app shell 相对路径（network-first 用） */
+const APP_SHELL = './am-tarot.html';
 
 /* 防抖：队列顺序缓存，单张失败不中断其余 */
 function queueAddAll(cache, urls) {
@@ -45,16 +49,32 @@ self.addEventListener('activate', e => {
   );
 });
 
-/* 缓存优先 + 动态补缓存 */
+/* fetch 策略：app shell 用 network-first（在线拿最新），其余 cache-first */
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+
+  /* 1. app shell / 导航请求 → network-first */
+  if (req.mode === 'navigate' || url.pathname.endsWith('/am-tarot.html') || url.pathname.endsWith('/index.html')) {
+    e.respondWith(
+      fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(APP_SHELL, copy)).catch(() => {});
+        return res;
+      }).catch(() => caches.match(APP_SHELL).then(hit => hit || caches.match(req)))
+    );
+    return;
+  }
+
+  /* 2. 其余资源 → cache-first + 动态补缓存 */
   e.respondWith(
-    caches.match(e.request).then(hit => {
+    caches.match(req).then(hit => {
       if (hit) return hit;
-      return fetch(e.request).then(res => {
-        if (res.ok && e.request.url.startsWith(self.location.origin)) {
+      return fetch(req).then(res => {
+        if (res.ok && url.origin === self.location.origin) {
           const copy = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, copy));
+          caches.open(CACHE).then(c => c.put(req, copy));
         }
         return res;
       });

@@ -122,7 +122,7 @@ main{position:relative;z-index:1;padding:var(--sp-3) var(--sp-2);max-width:60ch;
 .cell-3.dealt:nth-child(3){transition-delay:.44s;}
 .spark{position:absolute;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle,#ffe9a8,var(--gold-d));box-shadow:0 0 8px var(--gold);pointer-events:none;z-index:5;opacity:0;animation:sparkFly .6s ease-out forwards;}
 @keyframes sparkFly{0%{opacity:1;transform:translate(0,0) scale(1);}100%{opacity:0;transform:translate(var(--dx,30px),var(--dy,-20px)) rotate(var(--r,0deg)) scale(.2);}}
-.card3d{width:100%;max-width:150px;height:220px;position:relative;transform-style:preserve-3d;}
+.card3d{width:100%;max-width:150px;height:220px;position:relative;perspective:700px;transform-style:preserve-3d;}
 .cell-3 .card3d{height:180px;}
 .flipper{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,.2,.2,1);}
 .flipper.flipped{transform:rotateY(180deg);}
@@ -770,11 +770,23 @@ init();
 })();
 </script>
 <script>
-/* PWA — 注册 Service Worker */
+/* PWA — 注册 Service Worker，主动检查更新避免旧缓存 */
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./sw.js').then(function(reg){
-    /* 新版本可用时立即接管，避免旧缓存残留 */
+  navigator.serviceWorker.register('./sw.js', {scope: './'}).then(function(reg){
+    reg.update();
+    /* 发现新版本立即接管，避免旧缓存残留 */
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+    reg.addEventListener('updatefound', function(){
+      var nw = reg.installing;
+      if(nw){
+        nw.addEventListener('statechange', function(){
+          if(nw.state === 'activated' && navigator.serviceWorker.controller){
+            /* 新 SW 已激活，刷新页面应用最新版本 */
+            window.location.reload();
+          }
+        });
+      }
+    });
   }).catch(function(){});
 }
 </script>
