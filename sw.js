@@ -1,7 +1,7 @@
 /* 阿毛塔罗 - Service Worker v3
  * 预缓存全部 78 张牌图 + 核心资源，安装失败单条不阻断
  */
-const CACHE = 'am-tarot-v3';
+const CACHE = 'am-tarot-v4';
 
 /* 牌组结构：suite -> 张数 */
 const DECK = {
