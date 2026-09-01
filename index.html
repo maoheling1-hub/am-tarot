@@ -2,119 +2,12 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#1a1430">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="0; url=./am-tarot.html">
 <title>阿毛塔罗 · 自学抽牌</title>
-<link rel="stylesheet" href="css/style.css?v=30">
-<link rel="manifest" href="manifest.json">
 </head>
 <body>
-
-<!-- ============ 顶部导航 ============ -->
-<header class="topbar">
-  <div class="brand">
-    <div class="brand-icon">✦</div>
-    <div class="brand-text">
-      <span class="brand-name">阿毛塔罗</span>
-      <span class="brand-sub">阿毛塔罗 · 抽牌自学</span>
-    </div>
-  </div>
-  <nav class="tabs">
-    <button class="tab active" data-tab="draw">抽牌</button>
-    <button class="tab" data-tab="learn">牌库自学</button>
-    <button class="tab" data-tab="quiz">自测</button>
-    <button class="tab" data-tab="guide">入门指引</button>
-  </nav>
-</header>
-
-<!-- ============ 抽牌区 ============ -->
-<main>
-<section id="draw" class="panel active">
-
-  <!-- 问题输入 -->
-  <div class="focus-card">
-    <label class="focus-label">今天想问什么？（可留空）</label>
-    <input id="questionInput" class="question-input" type="text"
-      placeholder="例：我该如何看待眼前的机会？" maxlength="60">
-  </div>
-
-  <!-- 牌阵选择 -->
-  <div class="spread-row">
-    <button class="spread active" data-count="1">单张 · 每日指引</button>
-    <button class="spread" data-count="3">三张 · 过去现在未来</button>
-  </div>
-
-  <!-- 牌桌 -->
-  <div id="table" class="table"></div>
-
-  <!-- 抽牌按钮 -->
-  <div class="draw-zone">
-    <button id="drawBtn" class="draw-btn">✦ 洗牌 &amp; 抽牌 ✦</button>
-  </div>
-
-  <!-- 解读结果 -->
-  <div id="result" class="result"></div>
-</section>
-
-<section id="learn" class="panel">
-  <div class="learn-header">
-    <h3>牌库浏览</h3>
-    <span class="deck-badge" id="deckCount">78 张</span>
-  </div>
-  <input id="learnSearch" class="search-input" type="text" placeholder="搜索牌名 / 关键词…">
-  <div class="browse-filters">
-    <button class="bfilter active" data-filter="all">全部</button>
-    <button class="bfilter" data-filter="major">大阿卡纳</button>
-    <button class="bfilter" data-filter="minor">小阿卡纳</button>
-  </div>
-  <div id="cardGrid" class="card-grid"></div>
-  <div id="learnDetail"></div>
-</section>
-
-<section id="quiz" class="panel">
-  <h3 class="panel-title">⊹ 牌意自测 ⊹</h3>
-  <p class="panel-desc">随机抽一张牌，凭记忆回想牌意，再点击查看对照，检验掌握程度。</p>
-  <div class="quiz-stage">
-    <div class="quiz-cardback" id="quizCardBack">?</div>
-    <button id="quizDraw" class="draw-btn small">随机出一题</button>
-    <div id="quizArea"></div>
-  </div>
-</section>
-
-<section id="guide" class="panel">
-  <div class="guide-body">
-    <h3 class="panel-title">⊹ 零基础入门指引 ⊹</h3>
-    <p class="panel-desc">按这个顺序学，最快掌握塔罗。</p>
-    <div class="guide-steps">
-      <div class="gstep"><b>① 认识结构</b>塔罗共78张：22张大阿卡纳（人生大课题）+ 56张小阿卡纳（生活细节）。小阿卡纳分4花色：权杖(火/行动)、圣杯(水/情感)、宝剑(风/思考)、星币(土/物质)。</div>
-      <div class="gstep"><b>② 先学大阿卡纳</b>22张是一个完整的“愚者之旅”成长故事。从愚人→世界，按顺序记住每个人生阶段，就记住了整个框架。</div>
-      <div class="gstep"><b>③ 记住阿卡纳数字</b>小阿卡纳的1~10和宫廷牌各有主题：1=开端、2=选择、3=成长、4=稳定、5=冲突、6=和谐、7=坚持、8=力量/变革、9=独自提升、10=完结;宫廷牌(侍从/骑士/王后/国王)=人格阶段。</div>
-      <div class="gstep"><b>④ 实操抽牌</b>回“抽牌”页，先不用管记不记得住，每天抽一张牌，读出正逆位关键词，再看详解对照，很快就有语感。</div>
-      <div class="gstep"><b>⑤ 用自测巩固</b>“自测”页随机抽牌回想牌意，检验自己记下多少，反复几次就能内化。</div>
-    </div>
-    <h3 class="panel-title">⊹ 速记小技巧 ⊹</h3>
-    <div class="tips">
-      <div class="tipline">✓ 每张牌记 <b>“3个关键词 + 1句话”</b>，别背长文。</div>
-      <div class="tipline">✓ 逆位不是“坏”，而是“过度/不足/受阻” —— 常表示能量失衡。</div>
-      <div class="tipline">✓ 看牌联想：画面里有什么元素（星/水/剑/花），就往那个方向解读。</div>
-    </div>
-  </div>
-</section>
-</main>
-
-<!-- ============ 牌意详情弹层 ============ -->
-<div id="modal" class="modal">
-  <div class="modal-box">
-    <button id="modalClose" class="modal-close">×</button>
-    <div id="modalContent"></div>
-  </div>
-</div>
-
-<script src="js/data-major.js?v=20"></script>
-<script src="js/data-minor-wands.js?v=20"></script>
-<script src="js/data-minor-cups.js?v=20"></script>
-<script src="js/data-minor-swords.js?v=20"></script>
-<script src="js/data-minor-pentacles.js?v=20"></script>
-<script src="js/app.js?v=30"></script>
+<script>location.replace('./am-tarot.html');</script>
+<p style="font-family:sans-serif;text-align:center;margin-top:2em;"><a href="./am-tarot.html">阿毛塔罗 · 点击进入</a></p>
 </body>
 </html>
