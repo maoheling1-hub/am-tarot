@@ -600,6 +600,15 @@ function flipAllSequential(){
     setTimeout(()=> flipCard(i), flipBase + i*flipGap);
   });
   const revealDelay = flipBase + n*flipGap + 450;
+  // 最后一张翻牌即将结束时，滚动到 #table 顶部让用户能看到正面卡
+  const scrollDelay = Math.max(50, flipBase + n*flipGap - 300);
+  setTimeout(()=>{
+    const table = $('#table');
+    if(table){
+      const top = table.getBoundingClientRect().top + window.scrollY - 12;
+      window.scrollTo({ top, behavior:'smooth' });
+    }
+  }, scrollDelay);
   setTimeout(()=> renderResult(), revealDelay);
 }
 
@@ -654,7 +663,8 @@ function renderResult(){
   const box = el('div','learn-cta');
   box.innerHTML = '<div class="lc-title">想真正学会塔罗？</div><div class="lc-sub">① 把每张牌的 <b>3 个关键词</b>当"记忆锚点"，别死记长文。<br>② 看<b>学习引导</b>里的内核故事，理解它是谁。<br>③ 去"牌库自学"逐张浏览，或去"自测"检验自己记下没。<br>④ 每天抽一张牌当作今日提醒，练出牌感。</div><div class="lc-btns"><button class="ghost" onclick="window.showTab(\'learn\')">去牌库看这张牌</button><button class="ghost" onclick="window.showTab(\'quiz\')">去自测一下</button></div>';
   res.appendChild(box);
-  res.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  // 不把详情顶到视口上方（会把 #table 挤出屏幕外用户看不到正面）
+  // 前面已滚动 #table 到顶部，下面详情自然可见，用户向下滚动即可阅读
 }
 
 function openModal(card, reversed){
