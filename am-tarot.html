@@ -772,7 +772,10 @@ init();
 <script>
 /* PWA — 注册 Service Worker */
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./sw.js').catch(function(){});
+  navigator.serviceWorker.register('./sw.js').then(function(reg){
+    /* 新版本可用时立即接管，避免旧缓存残留 */
+    if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+  }).catch(function(){});
 }
 </script>
 </body>
