@@ -1,8 +1,8 @@
-/* 阿毛塔罗 - Service Worker v4
+/* 阿毛塔罗 - Service Worker v5
  * 预缓存全部 78 张牌图 + 核心资源，安装失败单条不阻断
  * 关键：app shell (HTML) 采用 network-first，在线始终取最新版本，离线回退缓存
  */
-const CACHE = 'am-tarot-v6';
+const CACHE = 'am-tarot-v7';
 
 /* 牌组结构：suite -> 张数 */
 const DECK = {
