@@ -131,7 +131,7 @@ main{position:relative;z-index:1;padding:var(--sp-3) var(--sp-2);max-width:60ch;
 .back-frame{position:absolute;inset:7px;border:1px solid oklch(78% 0.12 75 / .4);border-radius:5px;background:repeating-linear-gradient(45deg,transparent 0 6px,oklch(78% 0.12 75 / .06) 6px 12px);}
 .back-pattern{font-size:38px;color:var(--gold);opacity:.7;text-shadow:0 0 10px oklch(78% 0.12 75 / .3);animation:backShine 3s ease-in-out infinite;}
 @keyframes backShine{0%,100%{opacity:.6;text-shadow:0 0 6px oklch(78% 0.12 75 / .2);}50%{opacity:.9;text-shadow:0 0 18px oklch(78% 0.12 75 / .45);}}
-.card-front{transform:rotateY(180deg);background:linear-gradient(160deg,var(--card),var(--bg1));border:1px solid var(--card-border);overflow:hidden;position:relative;border-radius:8px;}
+.card-front{transform:rotateY(180deg);background:linear-gradient(160deg,var(--card),var(--bg1));border:1px solid var(--card-border);overflow:hidden;border-radius:8px;}
 .cf-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:7px;}
 .cf-fallback{display:none;position:absolute;inset:0;border-radius:7px;z-index:1;background:linear-gradient(160deg,var(--card),var(--bg1));padding:10px;flex-direction:column;}
 .card-front.rev{filter:saturate(.85) brightness(.9);border-color:var(--rev);}
@@ -503,7 +503,7 @@ function drawCards(count){
 const state = { current:[], spreadCount:1, question:'' };
 
 function cardImagePath(card){
-  return 'images/'+card.suite+'/'+card.id+'.jpg';
+  return 'images/'+card.suite+'/'+card.id+'.jpg?v=5';
 }
 
 function suitIcon(suite){
@@ -525,7 +525,7 @@ function cardFaceHTML(card, reversed, number){
   const imgPath = cardImagePath(card);
   const iconPart = '<div class="cf-iconbox">'+suitIcon(card.suite)+'<div class="cf-name">'+card.n+'</div><div class="cf-en">'+card.en+'</div></div>';
   return '<div class="cardface card-front '+rev+'" data-i="'+number+'">'+
-    '<img class="cf-img" src="'+imgPath+'" alt="'+card.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'+
+    '<img class="cf-img" src="'+imgPath+'" alt="'+card.n+'" loading="eager" decoding="sync" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'+
     '<div class="cf-fallback">'+iconPart+'<div class="cf-numline"><span class="cf-num">'+card.num+'</span><span class="cf-suit">'+card.suitName+'</span><span class="cf-elm">'+card.el+'</span></div></div></div>';
 }
 
@@ -602,7 +602,7 @@ function renderCardDetail(card, reversed, posName, withButt){
   const detail = reversed ? card.r : card.m;
   const iconHtml = suitIcon(card.suite);
   wrap.innerHTML = '<div class="dc-head"><div class="dc-thumb">'+
-    '<img class="dc-img" src="images/'+card.suite+'/'+card.id+'.jpg" alt="'+card.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'+
+    '<img class="dc-img" src="images/'+card.suite+'/'+card.id+'.jpg?v=5" alt="'+card.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'+
     '<div class="dc-fb" style="display:none"><span class="dc-fb-icon">'+iconHtml+'</span></div></div>'+
     '<div class="dc-title">'+(posName?'<div class="dc-pos">'+posName+'</div>':'')+
     '<div class="dc-name">'+card.n+' <span class="dc-en">'+card.en+'</span></div>'+
@@ -708,7 +708,7 @@ function renderCardGrid(){
   $('#deckCount').textContent = list.length;
   list.forEach(card=>{
     const cell = el('div','grid-card');
-    cell.innerHTML = '<div class="gc-img-wrap"><img class="gc-img" src="images/'+card.suite+'/'+card.id+'.jpg" alt="'+card.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="gc-fallback" style="display:none"><span class="gc-fb-icon">'+suitIcon(card.suite)+'</span></div></div><div class="gc-name">'+card.n+'</div><div class="gc-sub">'+(SUITE[card.suite]||'大阿卡纳')+' · '+card.el+'元素</div>';
+    cell.innerHTML = '<div class="gc-img-wrap"><img class="gc-img" src="images/'+card.suite+'/'+card.id+'.jpg?v=5" alt="'+card.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="gc-fallback" style="display:none"><span class="gc-fb-icon">'+suitIcon(card.suite)+'</span></div></div><div class="gc-name">'+card.n+'</div><div class="gc-sub">'+(SUITE[card.suite]||'大阿卡纳')+' · '+card.el+'元素</div>';
     cell.onclick = ()=> openModal(card, false);
     grid.appendChild(cell);
   });
@@ -742,7 +742,7 @@ $('#quizDraw').onclick = function(){
   const area = $('#quizArea');
   area.innerHTML = '';
   const q = el('div','quiz-card');
-  q.innerHTML = '<div class="qz-img-wrap"><img class="qz-img" src="images/'+quizCard.suite+'/'+quizCard.id+'.jpg" alt="'+quizCard.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="qz-fb" style="display:none"><span class="qz-fb-icon">✦</span></div></div><div class="qz-name">'+quizCard.n+' <span>'+quizCard.en+'</span></div><div class="qz-meta">'+(SUITE[quizCard.suite]||'大阿卡纳')+' · '+quizCard.num+' · 元素'+quizCard.el+' · '+(rev?'逆位':'正位')+'</div><div class="qz-ask">先凭记忆回想这张牌的<b>关键词</b>与<b>一句话牌意</b>，再看看对照。</div><div class="qz-mem">你来写：<textarea id="qzCapture" rows="2" placeholder="想到什么都行，想不出来就直接看答案"></textarea></div><button id="qzShow" class="draw-btn small">查看对照答案</button><div id="qzAns" style="display:none"></div>';
+  q.innerHTML = '<div class="qz-img-wrap"><img class="qz-img" src="images/'+quizCard.suite+'/'+quizCard.id+'.jpg?v=5" alt="'+quizCard.n+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="qz-fb" style="display:none"><span class="qz-fb-icon">✦</span></div></div><div class="qz-name">'+quizCard.n+' <span>'+quizCard.en+'</span></div><div class="qz-meta">'+(SUITE[quizCard.suite]||'大阿卡纳')+' · '+quizCard.num+' · 元素'+quizCard.el+' · '+(rev?'逆位':'正位')+'</div><div class="qz-ask">先凭记忆回想这张牌的<b>关键词</b>与<b>一句话牌意</b>，再看看对照。</div><div class="qz-mem">你来写：<textarea id="qzCapture" rows="2" placeholder="想到什么都行，想不出来就直接看答案"></textarea></div><button id="qzShow" class="draw-btn small">查看对照答案</button><div id="qzAns" style="display:none"></div>';
   area.appendChild(q);
   $('#'+'qzShow').onclick = function(){
     const ans = $('#qzAns');

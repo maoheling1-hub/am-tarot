@@ -1,17 +1,17 @@
 /* 阿毛塔罗 - Service Worker v3
  * 预缓存全部 78 张牌图 + 核心资源，安装失败单条不阻断
  */
-const CACHE = 'am-tarot-v4';
+const CACHE = 'am-tarot-v5';
 
 /* 牌组结构：suite -> 张数 */
 const DECK = {
   'major': 22, 'wands': 14, 'cups': 14, 'swords': 14, 'pents': 14
 };
 
-/* 生成全部图片 URL */
+/* 生成全部图片 URL（带版本号，配合页面缓存策略） */
 const IMAGES = [];
 for (const s in DECK) {
-  for (let i = 0; i < DECK[s]; i++) IMAGES.push('./images/' + s + '/' + i + '.jpg');
+  for (let i = 0; i < DECK[s]; i++) IMAGES.push('./images/' + s + '/' + i + '.jpg?v=5');
 }
 
 const CORE = [
