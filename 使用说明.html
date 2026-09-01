@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>阿毛塔罗 · 手机使用说明</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg: oklch(12% 0.04 280);
+  --card: oklch(20% 0.06 280);
+  --gold: oklch(78% 0.12 75);
+  --text: oklch(92% 0.02 280);
+  --dim: oklch(72% 0.04 280);
+  --accent: oklch(82% 0.03 260);
+}
+body{
+  font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.7; padding: 20px 16px 40px; max-width: 600px; margin: 0 auto;
+}
+h1{color:var(--gold);font-size:1.4rem;text-align:center;margin:10px 0 6px;letter-spacing:2px;}
+h1 small{display:block;font-size:0.8rem;color:var(--dim);font-weight:400;letter-spacing:1px;margin-top:4px;}
+.sub{text-align:center;color:var(--dim);font-size:0.85rem;margin-bottom:24px;border-bottom:1px solid oklch(35% 0.06 280 / .5);padding-bottom:16px;}
+.step{background:var(--card);border:1px solid oklch(35% 0.06 280 / .5);border-radius:10px;padding:16px;margin-bottom:14px;position:relative;}
+.step-num{position:absolute;top:-10px;left:-6px;background:var(--gold);color:var(--bg);font-weight:700;font-size:0.75rem;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;letter-spacing:0;}
+.step h3{color:var(--gold);font-size:1rem;margin-bottom:6px;letter-spacing:1px;}
+.step p,.step li{font-size:0.9rem;color:var(--text);margin-bottom:4px;}
+.step ul{padding-left:18px;margin-top:4px;}
+.step li{margin-bottom:3px;}
+.step li b{color:var(--gold);font-weight:600;}
+.tag{display:inline-block;background:oklch(78% 0.12 75 / .12);color:var(--gold);padding:1px 10px;border-radius:3px;font-size:0.75rem;margin-right:4px;border:1px solid oklch(78% 0.12 75 / .2);}
+.note{background:oklch(78% 0.12 75 / .06);border:1px dashed var(--gold);border-radius:8px;padding:12px 14px;margin:20px 0;font-size:0.85rem;color:var(--dim);}
+.note b{color:var(--gold);}
+.icon{font-style:normal;margin-right:4px;}
+.section-title{color:var(--gold);font-size:1.1rem;margin:24px 0 12px;letter-spacing:1px;padding-bottom:4px;border-bottom:1px solid oklch(35% 0.06 280 / .3);}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.feat{background:var(--card);border:1px solid oklch(35% 0.06 280 / .4);border-radius:8px;padding:12px;text-align:center;}
+.feat .icon{font-size:1.5rem;display:block;margin-bottom:4px;}
+.feat-name{font-size:0.85rem;color:var(--gold);font-weight:600;}
+.feat-desc{font-size:0.75rem;color:var(--dim);margin-top:2px;}
+@media (max-width:380px){.feat-grid{grid-template-columns:1fr;}}
+.footer{text-align:center;font-size:0.75rem;color:var(--dim);margin-top:30px;padding-top:16px;border-top:1px solid oklch(35% 0.06 280 / .3);}
+</style>
+</head>
+<body>
+
+<h1>✦ 阿毛塔罗<br><small>手机端使用说明</small></h1>
+<p class="sub">无需联网 · 离线可用 · 随时随地学塔罗</p>
+
+<!-- 第一步：获取文件 -->
+<div class="step">
+  <div class="step-num">1</div>
+  <h3>获取 App 文件</h3>
+  <p>你有两种方式拿到文件：</p>
+  <ul>
+    <li><span class="tag">推荐</span> <b>zip 压缩包</b> — 把 <code>am-tarot-v1.zip</code> 传到手机，解压到任意文件夹</li>
+    <li><span class="tag">单文件</span> <b>am-tarot.html</b> — 直接把这个文件传到手机即可（需保留 <code>images/</code> 文件夹在同目录）</li>
+  </ul>
+</div>
+
+<!-- 第二步：传文件到手机 -->
+<div class="step">
+  <div class="step-num">2</div>
+  <h3>把文件传到手机</h3>
+  <p>选一种你方便的方式：</p>
+  <ul>
+    <li><b>微信 / QQ</b> — 电脑发给"文件传输助手"，手机上保存到「文件」App</li>
+    <li><b>数据线</b> — 连接电脑，把文件夹复制到手机存储</li>
+    <li><b>网盘</b> — 上传到百度网盘/阿里云盘，手机端下载</li>
+    <li><b>AirDrop</b>（iPhone→Mac）或 <b>Nearby Share</b>（安卓）</li>
+  </ul>
+</div>
+
+<!-- 第三步：解压 -->
+<div class="step">
+  <div class="step-num">3</div>
+  <h3>解压（如果是 zip 包）</h3>
+  <ul>
+    <li><b>iPhone</b> — 在「文件」App 中点 zip 文件，自动解压</li>
+    <li><b>安卓</b> — 用系统自带的「文件管理」或下载 <b>RAR</b> App 解压</li>
+  </ul>
+</div>
+
+<!-- 第四步：打开 -->
+<div class="step">
+  <div class="step-num">4</div>
+  <h3>打开 App</h3>
+  <p>在解压后的文件夹里，找到 <b>am-tarot.html</b>，点击它：</p>
+  <ul>
+    <li><b>iPhone</b> — 长按文件 → 「共享」→ 选择 Safari 浏览器打开<br>或：在 Safari 地址栏输入 <code>文件:///…/am-tarot.html</code></li>
+    <li><b>安卓</b> — 直接点击，选择「浏览器」或「Chrome」打开</li>
+  </ul>
+  <p style="margin-top:6px;color:var(--dim);font-size:0.85rem;">打开后建议添加到桌面：浏览器菜单 → 「添加到主屏幕」，下次就能像 App 一样点图标打开。</p>
+</div>
+
+<div class="section-title">✦ 功能介绍</div>
+
+<div class="feat-grid">
+  <div class="feat">
+    <span class="icon">🔮</span>
+    <div class="feat-name">抽牌</div>
+    <div class="feat-desc">默念问题 → 点洗牌按钮 → 看翻牌动画 → 阅读详解</div>
+  </div>
+  <div class="feat">
+    <span class="icon">📚</span>
+    <div class="feat-name">牌库自学</div>
+    <div class="feat-desc">浏览全部78张牌，按大/小阿卡纳筛选，搜索牌名或关键词</div>
+  </div>
+  <div class="feat">
+    <span class="icon">✍️</span>
+    <div class="feat-name">自测</div>
+    <div class="feat-desc">随机抽牌，闭眼回想牌意，再对照答案，巩固记忆</div>
+  </div>
+  <div class="feat">
+    <span class="icon">📖</span>
+    <div class="feat-name">入门指引</div>
+    <div class="feat-desc">零基础学习路径 + 速记技巧，一步步学会塔罗</div>
+  </div>
+</div>
+
+<div class="section-title">✦ 抽牌操作详解</div>
+
+<div class="step">
+  <div class="step-num">①</div>
+  <h3>选择牌阵</h3>
+  <p>在顶部选择：</p>
+  <ul>
+    <li><span class="tag">单张</span> <b>每日指引</b> — 每天抽一张，当作今日提醒</li>
+    <li><span class="tag">三张</span> <b>过去·现在·未来</b> — 探讨具体问题的时间线</li>
+  </ul>
+</div>
+
+<div class="step">
+  <div class="step-num">②</div>
+  <h3>输入问题（可选）</h3>
+  <p>在输入框写下你想问的，比如：</p>
+  <ul>
+    <li>"我该如何看待眼前的机会？"</li>
+    <li>"今天需要注意什么？"</li>
+    <li>留空也可以，默认为"今日对内心的指引"</li>
+  </ul>
+</div>
+
+<div class="step">
+  <div class="step-num">③</div>
+  <h3>洗牌 &amp; 抽牌</h3>
+  <p>点 <b>✦ 洗牌 &amp; 抽牌 ✦</b> 按钮：</p>
+  <ul>
+    <li>牌堆会开始 <b>左右晃动</b>（模拟洗牌），约1.4秒</li>
+    <li>牌自动飞到桌面指定位置</li>
+    <li>每张牌按顺序 <b>翻牌</b>，伴随星光特效 ✨</li>
+    <li>翻牌后自动显示解读结果</li>
+  </ul>
+</div>
+
+<div class="step">
+  <div class="step-num">④</div>
+  <h3>阅读解读</h3>
+  <p>每张牌包含：</p>
+  <ul>
+    <li>🔸 <b>正 / 逆位</b> — 影响解读方向</li>
+    <li>🔸 <b>关键词</b> — 快速抓住核心含义</li>
+    <li>🔸 <b>牌意详解</b> — 正位/逆位含义</li>
+    <li>🔸 <b>学习引导</b> — 帮你理解这张牌的本质</li>
+    <li>🔸 <b>牌面象征</b> — 画面中的元素含义</li>
+    <li>🔸 点「继续学习这张牌」可查看更多</li>
+  </ul>
+</div>
+
+<div class="section-title">✦ 学习功能</div>
+
+<div class="step">
+  <h3>📚 牌库浏览</h3>
+  <ul>
+    <li>按 <b>全部 / 大阿卡纳 / 小阿卡纳</b> 筛选</li>
+    <li>顶部搜索框可搜 <b>牌名</b> 或 <b>关键词</b></li>
+    <li>点任意牌看完整详解</li>
+  </ul>
+</div>
+
+<div class="step">
+  <h3>✍️ 自测模式</h3>
+  <ul>
+    <li>点「随机出一题」→ 显示一张牌</li>
+    <li>先凭记忆回想它的 <b>关键词 + 牌意</b></li>
+    <li>点「查看对照答案」验证</li>
+    <li>反复练习，越记越牢</li>
+  </ul>
+</div>
+
+<div class="step">
+  <h3>📖 入门指引</h3>
+  <ul>
+    <li>按顺序学习：结构认识 → 大阿卡纳 → 数字规律 → 实操 → 自测</li>
+    <li>速记技巧：每张牌记"3个关键词 + 1句话"</li>
+  </ul>
+</div>
+
+<div class="note">
+  <b>💡 学习建议</b><br>
+  • 每天抽一张牌当作今日提醒，记下关键词，一周后回头翻看<br>
+  • 先学 <b>大阿卡纳22张</b>（愚人→世界的故事线），再学小阿卡纳<br>
+  • 自测时不要偷看答案，先努力回想，效果更好<br>
+  • 逆位不是"坏"，而是"过度/不足/受阻"——能量失衡的表现
+</div>
+
+<div class="footer">
+  ✦ 阿毛塔罗 · 离线塔罗学习工具 ✦<br>
+  无需联网 · 数据不离开你的手机 · 隐私安全
+</div>
+
+</body>
+</html>
